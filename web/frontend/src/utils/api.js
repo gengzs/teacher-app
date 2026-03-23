@@ -4,7 +4,8 @@
 
 import axios from 'axios'
 
-const API_BASE = import.meta.env.DEV ? '/api' : ''
+// 开发：Vite 把 /api 代理到后端；生产：同域 Express 路由为 /api/*
+const API_BASE = '/api'
 
 const api = axios.create({
   baseURL: API_BASE,
