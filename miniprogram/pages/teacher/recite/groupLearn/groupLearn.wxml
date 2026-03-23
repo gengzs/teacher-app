@@ -1,0 +1,107 @@
+<view class="learn-page">
+  <!-- 顶部：只留「第X/Y组 · 共N词」，不用←箭头，用系统导航栏返回 -->
+  <view class="learn-header">
+    <view class="header-center">
+      <text class="header-sub">第 {{currentGroupIndex + 1}} / {{totalGroups}} 组 · 共 {{totalCount}} 词</text>
+    </view>
+  </view>
+
+  <!-- 进度条 -->
+  <view class="learn-progress">
+    <view class="progress-fill" style="width: {{progressPercent}}%"></view>
+  </view>
+
+  <!-- 单词列表：点行发音，再点击显示释义 -->
+  <scroll-view class="learn-scroll" scroll-y>
+    <view class="word-list">
+      <view
+        class="word-row {{item.showMeaning ? 'showed' : ''}}"
+        wx:for="{{currentGroup}}"
+        wx:key="_id"
+      >
+        <!-- 整行点击：发音 / 显示释义 -->
+        <view
+          class="word-main"
+          bindtap="onWordTap"
+          data-index="{{index}}"
+        >
+          <text class="word-text">{{item.word}}</text>
+          <!-- 已显示释义时，展开显示音标和中文 -->
+          <view class="word-meaning" wx:if="{{item.showMeaning}}">
+            <text class="word-phonetic">{{item.phonetic}}</text>
+            <text class="word-translation">{{item.translation}}</text>
+          </view>
+          <!-- 提示：三步循环 -->
+          <text class="word-hint" wx:if="{{!item.showMeaning && !item.heardOnce}}">点1次：听发音</text>
+          <text class="word-hint hint-step2" wx:if="{{!item.showMeaning && item.heardOnce}}">点2次：显示释义</text>
+          <text class="word-hint hint-step3" wx:if="{{item.showMeaning}}">点3次：收起</text>
+        </view>
+
+        <!-- 右侧笔记按钮 -->
+        <view
+          class="note-btn {{item.note ? 'has-note' : ''}}"
+          bindtap="openNoteInput"
+          data-index="{{index}}"
+        >
+          <text class="note-icon">{{item.note ? '📝' : '✏️'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 组间提示 -->
+    <view class="group-tip" wx:if="{{totalGroups > 1}}">
+      <text class="tip-line"></text>
+      <text class="tip-text">学完本组后点「下一组」继续</text>
+      <text class="tip-line"></text>
+    </view>
+
+    <!-- 底部留白 -->
+    <view class="scroll-bottom-spacer"></view>
+  </scroll-view>
+
+  <!-- 底部导航栏 -->
+  <view class="learn-footer">
+    <view
+      class="nav-btn prev {{currentGroupIndex === 0 ? 'disabled' : ''}}"
+      bindtap="prevGroup"
+    >‹ 上一组</view>
+
+    <view class="nav-dots">
+      <view
+        class="dot {{idx === currentGroupIndex ? 'active' : ''}}"
+        wx:for="{{totalGroups}}"
+        wx:key="index"
+        wx:for-index="idx"
+      ></view>
+    </view>
+
+    <view
+      class="nav-btn next {{currentGroupIndex === totalGroups - 1 ? 'finish' : ''}}"
+      bindtap="nextGroup"
+    >{{currentGroupIndex === totalGroups - 1 ? '完成学习 ›' : '下一组 ›'}}</view>
+  </view>
+
+  <!-- 笔记输入弹窗 -->
+  <view class="note-modal-mask {{showNoteModal ? 'show' : ''}}" bindtap="closeNoteModal"></view>
+  <view class="note-modal {{showNoteModal ? 'show' : ''}}">
+    <view class="note-modal-header">
+      <text class="note-modal-title">📝 为「{{noteTargetWord}}」添加笔记</text>
+      <view class="note-modal-close" bindtap="closeNoteModal">✕</view>
+    </view>
+    <view class="note-modal-body">
+      <textarea
+        class="note-textarea"
+        placeholder="记录这个单词的记忆技巧、例句、联想等..."
+        value="{{noteContent}}"
+        bindinput="onNoteInput"
+        maxlength="200"
+        auto-focus
+      ></textarea>
+      <text class="note-char-count">{{noteContent.length}} / 200</text>
+    </view>
+    <view class="note-modal-footer">
+      <view class="note-btn-cancel" bindtap="closeNoteModal">取消</view>
+      <view class="note-btn-save" bindtap="saveNote">保存笔记</view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,70 @@
+<view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <input
+      class="search-input"
+      placeholder="搜索文章"
+      bindinput="onSearch"
+    />
+    <view class="search-icon">🔍</view>
+  </view>
+
+  <!-- 分类标签 -->
+  <scroll-view scroll-x class="category-scroll">
+    <view class="category-list">
+      <view
+        class="category-item {{currentCategory === item.key ? 'active' : ''}}"
+        wx:for="{{categories}}"
+        wx:key="key"
+        bindtap="selectCategory"
+        data-key="{{item.key}}"
+      >{{item.label}}</view>
+    </view>
+  </scroll-view>
+
+  <!-- 操作栏 -->
+  <view class="action-bar">
+    <view class="action-btn" bindtap="selectAll">全选</view>
+    <view class="action-btn" bindtap="clearSelection">清空</view>
+    <text class="selection-count">已选 {{selectedArticles.length}} 篇</text>
+  </view>
+
+  <!-- 文章列表 -->
+  <view class="article-list">
+    <view
+      class="article-item {{isSelected(item._id) ? 'selected' : ''}}"
+      wx:for="{{getFilteredArticles()}}"
+      wx:key="_id"
+      bindtap="toggleArticle"
+      data-id="{{item._id}}"
+    >
+      <view class="article-checkbox">
+        <view class="checkbox {{isSelected(item._id) ? 'checked' : ''}}">
+          <text wx:if="{{isSelected(item._id)}}">✓</text>
+        </view>
+      </view>
+      <view class="article-content" bindtap="previewArticle" data-id="{{item._id}}">
+        <view class="article-header">
+          <text class="article-title">{{item.title}}</text>
+          <view class="article-meta">
+            <text class="level">⭐{{item.level}}</text>
+            <text class="word-count">{{item.wordCount}}词</text>
+          </view>
+        </view>
+        <text class="article-preview">{{item.preview}}</text>
+        <view class="article-footer">
+          <text class="category-tag">{{item.category}}</text>
+          <text class="duration">🕐 {{item.duration}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部发送按钮 -->
+  <view class="bottom-bar {{selectedArticles.length > 0 ? 'show' : ''}}">
+    <view class="send-btn" bindtap="sendToHomework">
+      <text>发送至作业</text>
+      <text class="send-count" wx:if="{{selectedArticles.length > 0}}">({{selectedArticles.length}}篇)</text>
+    </view>
+  </view>
+</view>

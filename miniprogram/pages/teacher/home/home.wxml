@@ -1,0 +1,78 @@
+<!-- 教师端首页 -->
+<view class="container">
+  <!-- 头部 -->
+  <view class="header">
+    <view class="welcome">
+      <text class="welcome-text">老师您好</text>
+      <text class="welcome-date">{{currentDate}}</text>
+    </view>
+  </view>
+
+  <!-- 统计数据 -->
+  <view class="stats-row">
+    <view class="stat-card" bindtap="goToClassList">
+      <view class="stat-num">{{stats.classCount}}</view>
+      <view class="stat-label">班级</view>
+    </view>
+    <view class="stat-card" bindtap="goToStudents">
+      <view class="stat-num">{{stats.studentCount}}</view>
+      <view class="stat-label">学生</view>
+    </view>
+    <view class="stat-card" bindtap="goToHomework">
+      <view class="stat-num">{{stats.taskCount}}</view>
+      <view class="stat-label">待交</view>
+    </view>
+  </view>
+
+  <!-- 快捷操作 -->
+  <view class="quick-actions">
+    <view class="quick-btn primary" bindtap="goToCreateHomework">
+      <view class="quick-icon">📝</view>
+      <text class="quick-text">布置作业</text>
+    </view>
+    <view class="quick-btn" bindtap="goToRecite">
+      <view class="quick-icon">📖</view>
+      <text class="quick-text">单词带背</text>
+    </view>
+    <view class="quick-btn" bindtap="goToClassList">
+      <view class="quick-icon">🏫</view>
+      <text class="quick-text">班级管理</text>
+    </view>
+  </view>
+
+  <!-- 今日课程 -->
+  <view class="card">
+    <view class="card-header">
+      <text class="card-title">今日课程</text>
+      <text class="more" bindtap="goToSchedule">全部 ›</text>
+    </view>
+    <view class="schedule-list" wx:if="{{todaySchedule.length > 0}}">
+      <view
+        class="schedule-item"
+        wx:for="{{todaySchedule}}"
+        wx:key="index"
+        bindtap="goToClassDetail"
+        data-id="{{item.classId}}"
+      >
+        <view class="schedule-time-box">
+          <text class="schedule-time">{{item.time}}</text>
+        </view>
+        <view class="schedule-dot"></view>
+        <view class="schedule-info">
+          <text class="schedule-class">{{item.className}}</text>
+          <text class="schedule-subject">{{item.subject}}</text>
+        </view>
+        <view class="schedule-action">上课 ›</view>
+      </view>
+    </view>
+    <view class="empty-state" wx:if="{{todaySchedule.length === 0}}">
+      <text class="icon">📅</text>
+      <text class="text">今日无课</text>
+    </view>
+  </view>
+
+  <!-- 底部 Tab 提示 -->
+  <view class="tab-tip">
+    <text>👆 使用下方 Tab 栏快速访问各功能</text>
+  </view>
+</view>

@@ -1,0 +1,52 @@
+<view class="container">
+  <!-- 筛选栏 -->
+  <view class="filter-bar">
+    <view class="filter-item {{currentFilter === item.key ? 'active' : ''}}" 
+          wx:for="{{filterOptions}}" 
+          wx:key="key" 
+          bindtap="switchFilter" 
+          data-type="{{item.key}}">{{item.label}}</view>
+  </view>
+
+  <!-- 作业列表 -->
+  <view class="card">
+    <view class="homework-list" wx:if="{{homeworkList.length > 0}}">
+      <block wx:for="{{homeworkList}}" wx:key="_id">
+        <view class="homework-item" wx:if="{{currentFilter === 'all' || item.type === currentFilter}}" bindtap="goToDetail" data-id="{{item._id}}">
+          <view class="homework-main">
+            <view class="homework-icon {{item.type}}">
+              <text>{{item.type === 'voice' ? '🎤' : '📖'}}</text>
+            </view>
+            <view class="homework-info">
+              <text class="homework-title">{{item.title}}</text>
+              <text class="homework-meta">{{item.className}} · {{item.deadline}}</text>
+            </view>
+            <view class="homework-status {{item.status}}">
+              <text>{{item.status === 'ongoing' ? '进行中' : '已结束'}}</text>
+            </view>
+          </view>
+          <view class="homework-progress">
+            <view class="progress-bar">
+              <view class="progress-fill" style="width: {{(item.submitCount / item.totalCount) * 100}}%"></view>
+            </view>
+            <text class="progress-text">{{item.submitCount}}/{{item.totalCount}}</text>
+          </view>
+        </view>
+      </block>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{homeworkList.length === 0}}">
+      <text class="icon">📋</text>
+      <text class="text">{{emptyState.message}}</text>
+    </view>
+  </view>
+
+  <!-- 底部按钮 -->
+  <view class="bottom-action">
+    <view class="btn-primary" bindtap="goToCreateHomework">
+      <text class="btn-icon">+</text>
+      <text>布置作业</text>
+    </view>
+  </view>
+</view>

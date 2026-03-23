@@ -1,0 +1,65 @@
+<view class="container">
+  <!-- 作业信息 -->
+  <view class="card">
+    <view class="homework-header">
+      <view class="homework-icon {{homeworkInfo.type}}">
+        <text>{{homeworkInfo.type === 'voice' ? '🎤' : '📖'}}</text>
+      </view>
+      <view class="homework-info">
+        <text class="homework-title">{{homeworkInfo.title}}</text>
+        <text class="homework-meta">{{homeworkInfo.className}} · {{homeworkInfo.deadline}}</text>
+      </view>
+      <view class="homework-status {{homeworkInfo.status}}">
+        <text>{{homeworkInfo.status === 'ongoing' ? '进行中' : '已结束'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 作业内容 -->
+  <view class="card" wx:if="{{homeworkInfo.type === 'voice'}}">
+    <view class="card-title">跟读内容</view>
+    <view class="content-preview">
+      <text>{{homeworkInfo.content}}</text>
+    </view>
+  </view>
+
+  <!-- 提交进度 -->
+  <view class="card progress-card">
+    <view class="progress-header">
+      <text class="progress-title">提交情况</text>
+      <text class="progress-count">{{homeworkInfo.submitCount}}/{{homeworkInfo.totalCount}}</text>
+    </view>
+    <view class="progress-bar-wrapper">
+      <view class="progress-bar">
+        <view class="progress-fill" style="width: {{(homeworkInfo.submitCount / homeworkInfo.totalCount) * 100}}%"></view>
+      </view>
+      <text class="progress-percent">{{Math.round((homeworkInfo.submitCount / homeworkInfo.totalCount) * 100)}}%</text>
+    </view>
+  </view>
+
+  <!-- 学生列表 -->
+  <view class="card">
+    <view class="card-title">学生列表</view>
+    <view class="student-list">
+      <view class="student-item" 
+            wx:for="{{submissions}}" 
+            wx:key="studentId"
+            bindtap="viewSubmission"
+            data-id="{{item.studentId}}">
+        <view class="student-avatar {{item.status}}">
+          <text>{{item.studentName[0]}}</text>
+        </view>
+        <view class="student-info">
+          <text class="student-name">{{item.studentName}}</text>
+          <text class="submit-time" wx:if="{{item.status === 'completed'}}">提交于 {{item.submitTime}}</text>
+          <text class="submit-time pending" wx:if="{{item.status === 'pending'}}">待提交</text>
+        </view>
+        <view class="student-score" wx:if="{{item.status === 'completed'}}">
+          <text class="score-num">{{item.score}}</text>
+          <text class="score-label">分</text>
+        </view>
+        <text class="play-icon" wx:if="{{item.status === 'completed'}}">▶</text>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,148 @@
+<view class="container">
+  <!-- 导入提示 -->
+  <view class="import-tip">
+    <view class="tip-icon">💡</view>
+    <view class="tip-content">
+      <text class="tip-title">导入格式说明</text>
+      <text class="tip-text">Excel 文件应包含 3 列：\n第1列：英文单词\n第2列：中文翻译\n第3列：音标（可选）</text>
+    </view>
+  </view>
+
+  <!-- 导入按钮 -->
+  <view class="import-btn" bindtap="showImportModal">
+    <text class="btn-icon">📤</text>
+    <text class="btn-text">导入词库</text>
+  </view>
+
+  <!-- 词库列表 -->
+  <view class="card">
+    <view class="card-header">
+      <text class="card-title">我的词库</text>
+      <text class="card-count">{{wordSets.length}}个</text>
+    </view>
+
+    <view class="word-set-list" wx:if="{{wordSets.length > 0}}">
+      <view
+        class="word-set-item"
+        wx:for="{{wordSets}}"
+        wx:key="_id"
+        bindtap="viewWordSet"
+        data-id="{{item._id}}"
+      >
+        <view class="set-icon">📖</view>
+        <view class="set-content">
+          <text class="set-name">{{item.name}}</text>
+          <view class="set-meta">
+            <text class="meta-item">{{item.wordCount}}个单词</text>
+            <text class="meta-item" wx:if="{{item.lastUsed}}">上次使用：{{item.lastUsed}}</text>
+            <text class="meta-item new" wx:if="{{!item.lastUsed}}">新建</text>
+          </view>
+        </view>
+        <view class="set-actions">
+          <view
+            class="action-btn study"
+            catchtap="startLearning"
+            data-id="{{item._id}}"
+            data-name="{{item.name}}"
+          >开始</view>
+          <view
+            class="action-btn delete"
+            catchtap="deleteWordSet"
+            data-id="{{item._id}}"
+            data-name="{{item.name}}"
+          >删除</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="empty-state" wx:if="{{wordSets.length === 0}}">
+      <text class="icon">📚</text>
+      <text class="text">暂无词库</text>
+      <text class="hint">点击上方按钮导入 Excel 文件</text>
+    </view>
+  </view>
+
+  <!-- 导入弹窗 -->
+  <view class="modal-mask {{showImportModal ? 'show' : ''}}" bindtap="hideImportModal"></view>
+  <view class="modal {{showImportModal ? 'show' : ''}}">
+    <view class="modal-header">
+      <text class="modal-title">导入词库</text>
+      <view class="modal-close" bindtap="hideImportModal">✕</view>
+    </view>
+    <view class="modal-body">
+      <!-- 文件选择 -->
+      <view class="file-select" bindtap="chooseFile">
+        <text class="file-icon">📁</text>
+        <text class="file-text">选择 Excel 文件</text>
+        <text class="file-hint">支持 .xlsx 和 .xls 格式</text>
+      </view>
+
+      <!-- 格式说明 -->
+      <view class="format-guide">
+        <text class="guide-title">Excel 格式要求：</text>
+        <view class="guide-row">
+          <text class="guide-col">A列</text>
+          <text class="guide-desc">英文单词</text>
+        </view>
+        <view class="guide-row">
+          <text class="guide-col">B列</text>
+          <text class="guide-desc">中文翻译</text>
+        </view>
+        <view class="guide-row">
+          <text class="guide-col">C列</text>
+          <text class="guide-desc">音标（可选）</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 词库详情弹窗 -->
+  <view class="detail-modal {{currentSet ? 'show' : ''}}">
+    <view class="detail-mask" bindtap="closeWordSet"></view>
+    <view class="detail-content">
+      <view class="detail-header">
+        <view class="detail-title">
+          <text class="title-text">{{currentSet ? currentSet.name : ''}}</text>
+          <text class="title-count">{{words.length}}个单词</text>
+        </view>
+        <view class="detail-close" bindtap="closeWordSet">✕</view>
+      </view>
+
+      <view class="detail-search">
+        <input
+          class="search-input"
+          placeholder="搜索单词"
+          bindinput="onSearch"
+        />
+      </view>
+
+      <scroll-view scroll-y class="word-list">
+        <view
+          class="word-item"
+          wx:for="{{getFilteredWords()}}"
+          wx:key="_id"
+        >
+          <view class="word-info">
+            <text class="word-text">{{item.word}}</text>
+            <text class="word-phonetic">{{item.phonetic}}</text>
+          </view>
+          <text class="word-translation">{{item.translation}}</text>
+        </view>
+        <view class="list-empty" wx:if="{{getFilteredWords().length === 0}}">
+          <text>未找到匹配的单词</text>
+        </view>
+      </scroll-view>
+
+      <view class="detail-footer">
+        <view
+          class="start-btn"
+          bindtap="startLearning"
+          data-id="{{currentSet._id}}"
+          data-name="{{currentSet.name}}"
+        >
+          开始学习
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

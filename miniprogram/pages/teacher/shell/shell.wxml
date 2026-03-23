@@ -1,0 +1,616 @@
+<!-- Shell 页面 —— 所有 Tab 内容常驻，切换即时响应 -->
+<view class="container">
+
+  <!-- ==================== 首页 ==================== -->
+  <view wx:if="{{currentTab === 'home'}}">
+    <!-- 头部 -->
+    <view class="header">
+      <view class="welcome">
+        <text class="welcome-text">老师您好</text>
+        <text class="welcome-date">{{currentDate}}</text>
+      </view>
+    </view>
+
+    <!-- 统计数据 -->
+    <view class="stats-row">
+      <view class="stat-card" bindtap="goToClassList">
+        <view class="stat-num">{{stats.classCount}}</view>
+        <view class="stat-label">班级</view>
+      </view>
+      <view class="stat-card" bindtap="goToStudents">
+        <view class="stat-num">{{stats.studentCount}}</view>
+        <view class="stat-label">学生</view>
+      </view>
+      <view class="stat-card" bindtap="goToHomework">
+        <view class="stat-num">{{stats.taskCount}}</view>
+        <view class="stat-label">待交</view>
+      </view>
+    </view>
+
+    <!-- 快捷操作 -->
+    <view class="quick-actions">
+      <view class="quick-btn primary" style="background: {{theme.gradient}}" bindtap="goToCreateHomework">
+        <view class="quick-icon">📝</view>
+        <text class="quick-text" style="color: {{theme.text}}">布置作业</text>
+      </view>
+      <view class="quick-btn" bindtap="goToRecite">
+        <view class="quick-icon">📖</view>
+        <text class="quick-text">单词带背</text>
+      </view>
+      <view class="quick-btn" bindtap="goToClassList">
+        <view class="quick-icon">🏫</view>
+        <text class="quick-text">班级管理</text>
+      </view>
+    </view>
+
+    <!-- 今日课程 -->
+    <view class="card">
+      <view class="card-header">
+        <text class="card-title">今日课程</text>
+        <text class="more" style="color: {{theme.accent}}" bindtap="goToSchedule">全部 ›</text>
+      </view>
+      <view class="schedule-list" wx:if="{{todaySchedule.length > 0}}">
+        <view class="schedule-item" wx:for="{{todaySchedule}}" wx:key="index" bindtap="goToClassDetail" data-id="{{item.classId}}">
+          <view class="schedule-time-box">
+            <text class="schedule-time">{{item.time}}</text>
+          </view>
+          <view class="schedule-dot" style="background: {{theme.accent}}"></view>
+          <view class="schedule-info">
+            <text class="schedule-class">{{item.className}}</text>
+            <text class="schedule-subject">{{item.subject}}</text>
+          </view>
+          <view class="schedule-action" style="color: {{theme.accent}}">上课 ›</view>
+        </view>
+      </view>
+      <view class="empty-state" wx:if="{{todaySchedule.length === 0}}">
+        <text class="icon">📅</text>
+        <text class="text">今日无课</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ==================== 班级 ==================== -->
+  <view wx:if="{{currentTab === 'class'}}">
+    <view class="page-header">
+      <text class="page-title">班级</text>
+    </view>
+
+    <view class="class-list" wx:if="{{classes.length > 0}}">
+      <block wx:for="{{classes}}" wx:key="_id">
+        <view class="class-item {{dragging && dragIndex === index ? 'item-dragging' : ''}}" bindtap="onClassItemTap" bindlongpress="onItemLongPress" catchtouchmove="onItemTouchMove" catchtouchend="onItemTouchEnd" catchtouchcancel="onItemTouchEnd" data-id="{{item._id}}" data-index="{{index}}">
+          <view class="class-avatar">{{item.name[0]}}</view>
+          <view class="class-info">
+            <text class="class-name">{{item.name}}</text>
+            <text class="class-count">{{item.studentCount || 0}}名学生</text>
+          </view>
+          <view class="invite-code-box" catchtap="copyInviteCode" data-code="{{item.inviteCode}}">
+            <text class="invite-label">邀请码</text>
+            <text class="invite-value">{{item.inviteCode}}</text>
+          </view>
+        </view>
+      </block>
+    </view>
+
+    <view class="empty-state" wx:if="{{classes.length === 0}}">
+      <text class="icon">🏫</text>
+      <text class="text">暂无班级</text>
+      <text class="sub-text">去「我的」创建第一个班级</text>
+    </view>
+  </view>
+
+  <!-- ==================== 课表 ==================== -->
+  <view wx:if="{{currentTab === 'schedule'}}">
+    <view class="view-toggle">
+      <view class="toggle-btn {{viewMode === 'week' ? 'active' : ''}}" bindtap="toggleViewMode">日视图</view>
+      <view class="toggle-btn {{viewMode === 'day' ? 'active' : ''}}" bindtap="toggleViewMode">周视图</view>
+      <view class="add-btn" bindtap="addSchedule">+ 添加</view>
+    </view>
+
+    <!-- 日视图 -->
+    <view wx:if="{{viewMode === 'day'}}">
+      <scroll-view scroll-x class="week-scroll">
+        <view class="week-selector">
+          <view class="week-day {{currentWeekday === index ? 'active' : ''}}" wx:for="{{weekDays}}" wx:key="index" bindtap="selectDay" data-day="{{index}}">
+            <text class="day-label">{{item}}</text>
+            <text class="day-date">{{formatDate(index)}}</text>
+            <view class="day-dot" style="background: {{theme.accent}}" wx:if="{{weekSchedule[index] && weekSchedule[index].hasClass}}"></view>
+          </view>
+        </view>
+      </scroll-view>
+
+      <view class="card">
+        <view class="card-header">
+          <text class="card-title">{{weekDays[currentWeekday]}}课程</text>
+          <text class="card-count">{{currentDaySchedule.length}}节课</text>
+        </view>
+        <view class="schedule-list" wx:if="{{currentDaySchedule.length > 0}}">
+          <view class="schedule-item" wx:for="{{currentDaySchedule}}" wx:key="index" bindtap="goToClass" data-classid="{{item.classId}}">
+            <view class="schedule-time-box"><text class="schedule-time">{{item.time}}</text></view>
+            <view class="schedule-dot"></view>
+            <view class="schedule-info">
+              <text class="schedule-class">{{item.className}}</text>
+              <text class="schedule-subject">{{item.subject}}</text>
+            </view>
+            <text class="arrow">›</text>
+          </view>
+        </view>
+        <view class="empty-state" wx:if="{{currentDaySchedule.length === 0}}">
+          <text class="icon">📅</text>
+          <text class="text">今日无课</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 周视图 -->
+    <view wx:if="{{viewMode === 'week'}}">
+      <view class="week-header">
+        <text class="week-title">本周课程安排</text>
+      </view>
+      <view class="week-grid">
+        <view class="week-day-card {{item.hasClass ? 'has-class' : ''}}" wx:for="{{weekSchedule}}" wx:key="day" bindtap="selectDay" data-day="{{item.day}}">
+          <view class="week-day-label" style="color: {{item.hasClass ? theme.accent : ''}}">{{item.label}}</view>
+          <view class="week-day-date">{{formatDate(item.day)}}</view>
+          <view class="week-day-count" wx:if="{{item.hasClass}}"><text>{{item.count}}</text><text class="count-label">节课</text></view>
+          <view class="week-day-empty" wx:if="{{!item.hasClass}}"><text>无课</text></view>
+        </view>
+      </view>
+      <view class="card" wx:if="{{currentDaySchedule.length > 0}}">
+        <view class="card-header">
+          <text class="card-title">{{weekDays[currentWeekday]}}详细课程</text>
+        </view>
+        <view class="schedule-list">
+          <view class="schedule-item" wx:for="{{currentDaySchedule}}" wx:key="index">
+            <view class="schedule-time-box"><text class="schedule-time">{{item.time}}</text></view>
+            <view class="schedule-dot"></view>
+            <view class="schedule-info">
+              <text class="schedule-class">{{item.className}}</text>
+              <text class="schedule-subject">{{item.subject}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ==================== 作业 ==================== -->
+  <view wx:if="{{currentTab === 'homework'}}">
+    <view class="filter-bar">
+      <view class="filter-item {{currentFilter === item.key ? 'active' : ''}}" style="{{currentFilter === item.key ? 'color:' + theme.accent + ';border-color:' + theme.accent : ''}}" wx:for="{{filterOptions}}" wx:key="key" bindtap="switchFilter" data-type="{{item.key}}">{{item.label}}</view>
+    </view>
+
+    <view class="card">
+      <view class="homework-list" wx:if="{{homeworkList.length > 0}}">
+        <block wx:for="{{homeworkList}}" wx:key="_id">
+          <view class="homework-item" wx:if="{{currentFilter === 'all' || item.type === currentFilter}}" bindtap="goToHomeworkDetail" data-id="{{item._id}}">
+            <view class="homework-main">
+              <view class="homework-icon {{item.type}}"><text>{{item.type === 'voice' ? '🎤' : '📖'}}</text></view>
+              <view class="homework-info">
+                <text class="homework-title">{{item.title}}</text>
+                <text class="homework-meta">{{item.className}} · {{item.deadline}}</text>
+              </view>
+              <view class="homework-status {{item.status}}"><text>{{item.status === 'ongoing' ? '进行中' : '已结束'}}</text></view>
+            </view>
+            <view class="homework-progress">
+              <view class="progress-bar"><view class="progress-fill" style="width: {{(item.submitCount / item.totalCount) * 100}}%"></view></view>
+              <text class="progress-text">{{item.submitCount}}/{{item.totalCount}}</text>
+            </view>
+          </view>
+        </block>
+      </view>
+      <view class="empty-state" wx:if="{{homeworkList.length === 0}}">
+        <text class="icon">📋</text>
+        <text class="text">暂无作业</text>
+      </view>
+    </view>
+
+    <view class="bottom-action">
+      <view class="btn-primary" style="background: {{theme.gradient}}; color: {{theme.text}}" bindtap="goToCreateHomework">
+        <text class="btn-icon">+</text>
+        <text>布置作业</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ==================== 我的 ==================== -->
+  <view wx:if="{{currentTab === 'profile'}}">
+    <!-- 用户信息卡片 -->
+    <view class="profile-header">
+      <view class="profile-avatar">{{userInfo.name ? userInfo.name[0] : '老'}}</view>
+      <view class="profile-info">
+        <text class="profile-name">{{userInfo.name}}</text>
+        <text class="profile-school">{{userInfo.school}}</text>
+      </view>
+      <view class="profile-badge">老师</view>
+    </view>
+
+    <!-- 统计数据 -->
+    <view class="profile-stats-row">
+      <view class="profile-stat-card">
+        <text class="profile-stat-num">{{stats.classCount}}</text>
+        <text class="profile-stat-label">班级</text>
+      </view>
+      <view class="profile-stat-divider"></view>
+      <view class="profile-stat-card">
+        <text class="profile-stat-num">{{stats.studentCount}}</text>
+        <text class="profile-stat-label">学生</text>
+      </view>
+      <view class="profile-stat-divider"></view>
+      <view class="profile-stat-card">
+        <text class="profile-stat-num">{{stats.taskCount}}</text>
+        <text class="profile-stat-label">任务</text>
+      </view>
+    </view>
+
+    <!-- 分组菜单 -->
+    <block wx:for="{{profileGroups}}" wx:key="title">
+      <view class="profile-group">
+        <view class="profile-group-title">
+          <text class="profile-group-icon">{{item.title === '班级管理' ? '🏫' : item.title === '学习工具' ? '📚' : '⚙️'}}</text>
+          <text class="profile-group-name">{{item.title}}</text>
+        </view>
+        <view class="profile-menu-card">
+          <view
+            class="profile-menu-item"
+            wx:for="{{item.items}}"
+            wx:key="id"
+            wx:for-item="menuItem"
+            bindtap="goToPage"
+            data-id="{{menuItem.id}}"
+          >
+            <view class="profile-menu-icon">{{menuItem.icon}}</view>
+            <view class="profile-menu-content">
+              <text class="profile-menu-title">{{menuItem.title}}</text>
+              <text class="profile-menu-sub">{{menuItem.subtitle}}</text>
+            </view>
+            <text class="profile-menu-arrow">›</text>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <view class="profile-version">英语口语助手 v1.0.0</view>
+  </view>
+
+  <!-- ==================== 自定义 TabBar ==================== -->
+  <custom-tabbar currentTab="{{currentTab}}" themeAccent="{{theme.accent}}" bind:switch="switchTab" wx:if="{{!overlayPage}}" />
+
+  <!-- ==================== 覆盖层：班级详情 ==================== -->
+  <view class="overlay" wx:if="{{overlayPage === 'detail'}}">
+    <view class="overlay-nav">
+      <view class="overlay-back" bindtap="closeOverlay">‹ 返回</view>
+      <text class="overlay-title">{{detailData.classInfo.name || '班级详情'}}</text>
+      <view style="width:100rpx"></view>
+    </view>
+
+    <scroll-view scroll-y class="overlay-body">
+      <!-- 班级信息头部 -->
+      <view class="detail-header">
+        <view class="detail-avatar">{{detailData.classInfo.name ? detailData.classInfo.name[0] : '班'}}</view>
+        <view class="detail-info">
+          <text class="detail-name">{{detailData.classInfo.name || '加载中...'}}</text>
+          <text class="detail-meta">{{detailData.activeStudents.length}}名在班学生</text>
+        </view>
+        <view class="invite-code-box" bindtap="detailCopyInviteCode">
+          <text class="invite-label">邀请码</text>
+          <text class="invite-value">{{detailData.classInfo.inviteCode || '—'}}</text>
+        </view>
+      </view>
+
+      <!-- 功能模块 -->
+      <view class="detail-modules">
+        <view class="detail-module-card" bindtap="detailGoToStudents">
+          <view class="module-icon">👥</view>
+          <view class="module-content">
+            <text class="module-title">班级成员</text>
+            <text class="module-desc">{{detailData.activeStudents.length}}人在班</text>
+          </view>
+          <text class="module-arrow">›</text>
+        </view>
+        <view class="detail-module-card" bindtap="_openLibrary">
+          <view class="module-icon">📚</view>
+          <view class="module-content">
+            <text class="module-title">班级资料库</text>
+            <text class="module-desc">文章列表，可选几篇发送</text>
+          </view>
+          <text class="module-arrow">›</text>
+        </view>
+      </view>
+
+      <!-- 上课 -->
+      <view class="detail-section">
+        <view class="detail-section-title">📖 上课</view>
+        <view class="detail-action-row">
+          <view class="detail-action-card primary" bindtap="detailStartClass">
+            <view class="action-icon">🎯</view>
+            <text class="action-title">单词带背</text>
+            <text class="action-desc">抗遗忘复习</text>
+          </view>
+          <view class="detail-action-card">
+            <view class="action-icon">📜</view>
+            <text class="action-title">历史课程</text>
+            <text class="action-desc">查看上课记录</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 布置作业 -->
+      <view class="detail-section">
+        <view class="detail-section-title">📝 布置作业</view>
+        <view class="detail-action-row">
+          <view class="detail-action-card primary" bindtap="detailAssignHomework">
+            <view class="action-icon">📝</view>
+            <text class="action-title">选资料库文章</text>
+            <text class="action-desc">语音打卡</text>
+          </view>
+          <view class="detail-action-card" bindtap="detailAssignHomework">
+            <view class="action-icon">🎤</view>
+            <text class="action-title">其他作业</text>
+            <text class="action-desc">自由布置</text>
+          </view>
+        </view>
+        <!-- 最近作业 -->
+        <view class="detail-homework-list" wx:if="{{detailData.recentHomework.length > 0}}">
+          <view class="detail-homework-item" wx:for="{{detailData.recentHomework}}" wx:key="_id" bindtap="detailGoToHomeworkDetail" data-id="{{item._id}}">
+            <view class="homework-icon-sm">📄</view>
+            <view class="homework-info-sm">
+              <text class="homework-title-sm">{{item.title}}</text>
+              <text class="homework-meta-sm">截止 {{item.deadline}}</text>
+            </view>
+            <view class="homework-progress-sm">{{item.submitCount}}/{{item.totalCount}} 已交</view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 班级统计 -->
+      <view class="detail-section">
+        <view class="detail-section-title">📊 班级统计</view>
+        <view class="detail-stats-row">
+          <view class="detail-stat-item">
+            <text class="detail-stat-value">{{detailData.stats.totalStudents}}</text>
+            <text class="detail-stat-label">总人数</text>
+          </view>
+          <view class="detail-stat-item">
+            <text class="detail-stat-value">{{detailData.stats.homeworkDone}}</text>
+            <text class="detail-stat-label">作业完成</text>
+          </view>
+          <view class="detail-stat-item">
+            <text class="detail-stat-value">{{detailData.stats.avgScore}}</text>
+            <text class="detail-stat-label">平均分</text>
+          </view>
+        </view>
+      </view>
+
+      <view style="height:40rpx"></view>
+    </scroll-view>
+  </view>
+
+  <!-- ==================== 覆盖层：班级资料库 ==================== -->
+  <view class="overlay" wx:if="{{overlayPage === 'library'}}">
+    <view class="overlay-nav">
+      <view class="overlay-back" bindtap="closeOverlay">‹ 返回</view>
+      <text class="overlay-title">班级资料库</text>
+      <view style="width:100rpx"></view>
+    </view>
+
+    <scroll-view scroll-y class="overlay-body">
+      <!-- 分类标签 -->
+      <view class="lib-category-scroll">
+        <view class="lib-category-list">
+          <view class="lib-category-item {{libraryData.currentCategory === 'all' ? 'active' : ''}}" bindtap="libSelectCategory" data-key="all">全部</view>
+          <view class="lib-category-item {{libraryData.currentCategory === 'textbook' ? 'active' : ''}}" bindtap="libSelectCategory" data-key="textbook">教材配套</view>
+          <view class="lib-category-item {{libraryData.currentCategory === 'story' ? 'active' : ''}}" bindtap="libSelectCategory" data-key="story">故事绘本</view>
+          <view class="lib-category-item {{libraryData.currentCategory === 'dialogue' ? 'active' : ''}}" bindtap="libSelectCategory" data-key="dialogue">日常对话</view>
+          <view class="lib-category-item {{libraryData.currentCategory === 'exam' ? 'active' : ''}}" bindtap="libSelectCategory" data-key="exam">考试专项</view>
+        </view>
+      </view>
+
+      <!-- 操作栏 -->
+      <view class="lib-action-bar">
+        <view class="lib-action-btn" bindtap="libSelectAll">全选</view>
+        <view class="lib-action-btn" bindtap="libClearSelection">清空</view>
+        <text class="lib-selection-count">已选 {{libraryData.selectedArticles.length}} 篇</text>
+      </view>
+
+      <!-- 文章列表 -->
+      <view class="lib-article-list">
+        <view
+          class="lib-article-item {{libraryData.selectedArticles.includes(item._id) ? 'selected' : ''}}"
+          wx:for="{{libraryData.filteredArticles}}"
+          wx:key="_id"
+          bindtap="libToggleArticle"
+          data-id="{{item._id}}"
+        >
+          <view class="lib-checkbox {{libraryData.selectedArticles.includes(item._id) ? 'checked' : ''}}">
+            <text wx:if="{{libraryData.selectedArticles.includes(item._id)}}">✓</text>
+          </view>
+          <view class="lib-article-content">
+            <view class="lib-article-header">
+              <text class="lib-article-title">{{item.title}}</text>
+              <view class="lib-article-meta">
+                <text class="lib-level">⭐{{item.level}}</text>
+                <text class="lib-word-count">{{item.wordCount}}词</text>
+              </view>
+            </view>
+            <text class="lib-article-preview">{{item.preview}}</text>
+            <view class="lib-article-footer">
+              <text class="lib-category-tag">{{item.category === 'textbook' ? '教材配套' : item.category === 'story' ? '故事绘本' : item.category === 'dialogue' ? '日常对话' : item.category === 'exam' ? '考试专项' : item.category}}</text>
+              <text class="lib-duration">🕐 {{item.duration}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view style="height:120rpx"></view>
+    </scroll-view>
+
+    <!-- 底部发送按钮 -->
+    <view class="lib-bottom-bar {{libraryData.selectedArticles.length > 0 ? 'show' : ''}}">
+      <view class="lib-send-btn" bindtap="libSendToHomework">
+        <text>发送至作业</text>
+        <text class="lib-send-count" wx:if="{{libraryData.selectedArticles.length > 0}}">({{libraryData.selectedArticles.length}}篇)</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ==================== 覆盖层：布置作业 ==================== -->
+  <view class="overlay" wx:if="{{overlayPage === 'homework'}}">
+    <view class="overlay-nav">
+      <view class="overlay-back" bindtap="closeOverlay">‹ 返回</view>
+      <text class="overlay-title">布置作业</text>
+      <view style="width:100rpx"></view>
+    </view>
+
+    <scroll-view scroll-y class="overlay-body">
+      <!-- 步骤指示器 -->
+      <view class="hw-step-indicator">
+        <view class="hw-step-item {{homeworkData.currentStep >= 1 ? 'active' : ''}}">
+          <view class="hw-step-dot">{{homeworkData.currentStep > 1 ? '✓' : '1'}}</view>
+          <text class="hw-step-label">类型</text>
+        </view>
+        <view class="hw-step-line {{homeworkData.currentStep >= 2 ? 'active' : ''}}"></view>
+        <view class="hw-step-item {{homeworkData.currentStep >= 2 ? 'active' : ''}}">
+          <view class="hw-step-dot">{{homeworkData.currentStep > 2 ? '✓' : '2'}}</view>
+          <text class="hw-step-label">内容</text>
+        </view>
+        <view class="hw-step-line {{homeworkData.currentStep >= 3 ? 'active' : ''}}"></view>
+        <view class="hw-step-item {{homeworkData.currentStep >= 3 ? 'active' : ''}}">
+          <view class="hw-step-dot">3</view>
+          <text class="hw-step-label">时间</text>
+        </view>
+      </view>
+
+      <!-- 步骤1：选择类型 -->
+      <view wx:if="{{homeworkData.currentStep === 1}}">
+        <view class="hw-card">
+          <view class="hw-card-title">选择作业类型</view>
+          <view class="hw-type-options">
+            <view
+              class="hw-type-option {{homeworkData.homeworkType === item.key ? 'selected' : ''}}"
+              wx:for="{{homeworkTypes}}"
+              wx:key="key"
+              bindtap="hwSelectType"
+              data-type="{{item.key}}"
+            >
+              <view class="hw-type-icon">{{item.icon}}</view>
+              <view class="hw-type-info">
+                <text class="hw-type-label">{{item.label}}</text>
+                <text class="hw-type-desc">{{item.desc}}</text>
+              </view>
+              <view class="hw-type-check" wx:if="{{homeworkData.homeworkType === item.key}}">✓</view>
+            </view>
+          </view>
+        </view>
+        <view class="hw-bottom-btn">
+          <view class="hw-btn-primary" bindtap="hwNextStep">下一步</view>
+        </view>
+      </view>
+
+      <!-- 步骤2：填写内容 -->
+      <view wx:if="{{homeworkData.currentStep === 2}}">
+        <view class="hw-card">
+          <view class="hw-card-title">选择班级</view>
+          <view class="hw-class-grid">
+            <view
+              class="hw-class-option {{homeworkData.selectedClassId === item._id ? 'selected' : ''}}"
+              wx:for="{{classes}}"
+              wx:key="_id"
+              bindtap="hwSelectClass"
+              data-id="{{item._id}}"
+            >
+              <text class="hw-class-name">{{item.name}}</text>
+              <text class="hw-class-count">{{item.studentCount || 0}}人</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="hw-card">
+          <view class="hw-card-title">作业标题</view>
+          <input
+            class="hw-input"
+            placeholder="请输入作业标题"
+            value="{{homeworkData.homeworkTitle}}"
+            bindinput="hwOnTitleInput"
+          />
+        </view>
+
+        <view class="hw-card" wx:if="{{homeworkData.homeworkType === 'voice'}}">
+          <view class="hw-card-title">跟读内容（每行一句）</view>
+          <textarea
+            class="hw-textarea"
+            placeholder="请输入要跟读的内容，每行一句"
+            value="{{homeworkData.homeworkContent}}"
+            bindinput="hwOnContentInput"
+          ></textarea>
+          <text class="hw-form-hint" wx:if="{{homeworkData.contentLines.length > 0}}">已输入 {{homeworkData.contentLines.length}} 句</text>
+        </view>
+
+        <view class="hw-card" wx:if="{{homeworkData.homeworkType === 'article'}}">
+          <view class="hw-card-header-row">
+            <view class="hw-card-title">已选文章</view>
+            <view class="hw-card-action" bindtap="hwGoToLibrary">+ 添加</view>
+          </view>
+          <view class="hw-article-list" wx:if="{{homeworkData.selectedArticles.length > 0}}">
+            <view class="hw-article-item" wx:for="{{homeworkData.selectedArticles}}" wx:key="_id">
+              <text class="hw-article-icon">📄</text>
+              <view class="hw-article-info">
+                <text class="hw-article-title">{{item.title}}</text>
+                <text class="hw-article-meta">{{item.wordCount}}词</text>
+              </view>
+            </view>
+          </view>
+          <view class="hw-empty-articles" wx:if="{{homeworkData.selectedArticles.length === 0}}">
+            <text class="hw-empty-text">未选择文章</text>
+            <view class="hw-empty-btn" bindtap="hwGoToLibrary">去资料库选择</view>
+          </view>
+        </view>
+
+        <view class="hw-bottom-btns">
+          <view class="hw-btn-secondary" bindtap="hwPrevStep">上一步</view>
+          <view class="hw-btn-primary" bindtap="hwNextStep">下一步</view>
+        </view>
+      </view>
+
+      <!-- 步骤3：设置时间 -->
+      <view wx:if="{{homeworkData.currentStep === 3}}">
+        <view class="hw-card">
+          <view class="hw-card-title">设置截止时间</view>
+          <picker mode="date" value="{{homeworkData.deadline}}" start="{{homeworkData.minDate}}" bindchange="hwOnDateChange">
+            <view class="hw-date-picker">
+              <text class="hw-date-text {{homeworkData.deadline ? '' : 'placeholder'}}">
+                {{homeworkData.deadline || '请选择日期'}}
+              </text>
+              <text class="hw-date-arrow">›</text>
+            </view>
+          </picker>
+        </view>
+
+        <view class="hw-card hw-summary-card">
+          <view class="hw-card-title">作业预览</view>
+          <view class="hw-summary-item">
+            <text class="hw-summary-label">类型</text>
+            <text class="hw-summary-value">{{homeworkData.homeworkType === 'voice' ? '语音朗读' : '资料库选文'}}</text>
+          </view>
+          <view class="hw-summary-item">
+            <text class="hw-summary-label">班级</text>
+            <text class="hw-summary-value">{{homeworkData.selectedClassName || '请选择'}}</text>
+          </view>
+          <view class="hw-summary-item">
+            <text class="hw-summary-label">标题</text>
+            <text class="hw-summary-value">{{homeworkData.homeworkTitle || '—'}}</text>
+          </view>
+          <view class="hw-summary-item" wx:if="{{homeworkData.contentLines.length > 0}}">
+            <text class="hw-summary-label">内容</text>
+            <text class="hw-summary-value">{{homeworkData.contentLines.length}}句</text>
+          </view>
+        </view>
+
+        <view class="hw-bottom-btns">
+          <view class="hw-btn-secondary" bindtap="hwPrevStep">上一步</view>
+          <view class="hw-btn-primary" bindtap="hwPublish">发布作业</view>
+        </view>
+      </view>
+
+      <view style="height:40rpx"></view>
+    </scroll-view>
+  </view>
+</view>

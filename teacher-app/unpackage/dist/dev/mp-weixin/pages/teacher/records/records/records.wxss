@@ -1,0 +1,97 @@
+
+.container.data-v-3905c392 {
+  padding: 24rpx;
+  padding-bottom: 40rpx;
+}
+.card.data-v-3905c392 {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+}
+.record-list.data-v-3905c392 {
+  display: flex;
+  flex-direction: column;
+}
+.record-item.data-v-3905c392 {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+.record-item.data-v-3905c392:last-child {
+  border-bottom: none;
+}
+.record-icon.data-v-3905c392 {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+.record-icon.voice.data-v-3905c392 {
+  background: #E8F4FF;
+}
+.record-icon.word.data-v-3905c392 {
+  background: var(--theme-light);
+}
+.record-icon text.data-v-3905c392 {
+  font-size: 36rpx;
+}
+.record-info.data-v-3905c392 {
+  flex: 1;
+}
+.record-title.data-v-3905c392 {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 6rpx;
+}
+.record-date.data-v-3905c392 {
+  font-size: 24rpx;
+  color: #999;
+}
+.record-score.data-v-3905c392 {
+  text-align: right;
+}
+.score-num.data-v-3905c392 {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--theme-accent);
+}
+.score-label.data-v-3905c392 {
+  font-size: 22rpx;
+  color: var(--theme-accent);
+}
+.record-count.data-v-3905c392 {
+  text-align: right;
+}
+.count-num.data-v-3905c392 {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--theme-accent);
+}
+.count-label.data-v-3905c392 {
+  font-size: 22rpx;
+  color: var(--theme-accent);
+}
+.empty-state.data-v-3905c392 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80rpx 0;
+}
+.empty-state .icon.data-v-3905c392 {
+  font-size: 80rpx;
+  margin-bottom: 16rpx;
+}
+.empty-state .text.data-v-3905c392 {
+  font-size: 28rpx;
+  color: #999;
+}
+

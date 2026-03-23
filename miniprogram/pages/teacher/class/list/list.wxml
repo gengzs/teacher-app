@@ -1,0 +1,45 @@
+<view class="container">
+  <!-- 顶部标题 -->
+  <view class="page-header">
+    <text class="page-title">班级</text>
+  </view>
+
+  <!-- 班级列表 -->
+  <view class="class-list" wx:if="{{classes.length > 0}}">
+    <block wx:for="{{classes}}" wx:key="_id">
+      <!-- 班级卡片 -->
+      <view
+        class="class-item {{dragging && dragIndex === index ? 'item-dragging' : ''}}"
+        bindtap="onClassItemTap"
+        bindlongpress="onItemLongPress"
+        catchtouchmove="onItemTouchMove"
+        catchtouchend="onItemTouchEnd"
+        catchtouchcancel="onItemTouchEnd"
+        data-id="{{item._id}}"
+        data-index="{{index}}"
+      >
+        <!-- 头像 -->
+        <view class="class-avatar">{{item.name[0]}}</view>
+
+        <!-- 班级信息 -->
+        <view class="class-info">
+          <text class="class-name">{{item.name}}</text>
+          <text class="class-count">{{item.studentCount || 0}}名学生</text>
+        </view>
+
+        <!-- 邀请码 -->
+        <view class="invite-code-box" catchtap="copyInviteCode" data-code="{{item.inviteCode}}">
+          <text class="invite-label">邀请码</text>
+          <text class="invite-value">{{item.inviteCode}}</text>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{!loading && classes.length === 0}}">
+    <text class="icon">🏫</text>
+    <text class="text">暂无班级</text>
+    <text class="sub-text">去「我的」创建第一个班级</text>
+  </view>
+</view>

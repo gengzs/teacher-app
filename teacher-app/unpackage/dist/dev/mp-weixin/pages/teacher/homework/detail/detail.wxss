@@ -1,0 +1,194 @@
+
+.container.data-v-2cad9976 {
+  padding: 24rpx;
+  padding-bottom: 40rpx;
+}
+.card.data-v-2cad9976 {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 24rpx;
+}
+.card-title.data-v-2cad9976 {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 24rpx;
+}
+.homework-header.data-v-2cad9976 {
+  display: flex;
+  align-items: center;
+}
+.homework-icon.data-v-2cad9976 {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+.homework-icon.voice.data-v-2cad9976 {
+  background-color: #E8F4FF;
+}
+.homework-icon.word.data-v-2cad9976 {
+  background-color: var(--theme-light);
+}
+.homework-icon text.data-v-2cad9976 {
+  font-size: 40rpx;
+}
+.homework-info.data-v-2cad9976 {
+  flex: 1;
+}
+.homework-title.data-v-2cad9976 {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+.homework-meta.data-v-2cad9976 {
+  font-size: 26rpx;
+  color: #999;
+}
+.homework-status.data-v-2cad9976 {
+  padding: 10rpx 20rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  flex-shrink: 0;
+}
+.homework-status.ongoing.data-v-2cad9976 {
+  background-color: #E6F7FF;
+  color: #1890FF;
+}
+.homework-status.completed.data-v-2cad9976 {
+  background-color: #F5F5F5;
+  color: #999;
+}
+.content-preview.data-v-2cad9976 {
+  background: #FAFAFA;
+  padding: 24rpx;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  color: #333;
+  line-height: 1.8;
+}
+.progress-card.data-v-2cad9976 {
+  background: linear-gradient(135deg, var(--theme-light) 0%, #fff 100%);
+}
+.progress-header.data-v-2cad9976 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+.progress-title.data-v-2cad9976 {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+}
+.progress-count.data-v-2cad9976 {
+  font-size: 28rpx;
+  color: var(--theme-accent);
+  font-weight: 600;
+}
+.progress-bar-wrapper.data-v-2cad9976 {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+.progress-bar.data-v-2cad9976 {
+  flex: 1;
+  height: 12rpx;
+  background-color: #E5E5E5;
+  border-radius: 6rpx;
+  overflow: hidden;
+}
+.progress-fill.data-v-2cad9976 {
+  height: 100%;
+  background: var(--theme-gradient);
+  border-radius: 6rpx;
+}
+.progress-percent.data-v-2cad9976 {
+  font-size: 28rpx;
+  color: var(--theme-accent);
+  font-weight: 600;
+  width: 80rpx;
+  text-align: right;
+}
+.student-list.data-v-2cad9976 {
+  display: flex;
+  flex-direction: column;
+}
+.student-item.data-v-2cad9976 {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+.student-item.data-v-2cad9976:last-child {
+  border-bottom: none;
+}
+.student-avatar.data-v-2cad9976 {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  background: var(--theme-gradient);
+  color: #fff;
+  font-size: 28rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+.student-avatar.pending.data-v-2cad9976 {
+  background: #E5E5E5;
+  color: #999;
+}
+.student-info.data-v-2cad9976 {
+  flex: 1;
+}
+.student-name.data-v-2cad9976 {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 6rpx;
+}
+.submit-time.data-v-2cad9976 {
+  font-size: 24rpx;
+  color: #999;
+}
+.submit-time.pending.data-v-2cad9976 {
+  color: #FF6B6B;
+}
+.student-score.data-v-2cad9976 {
+  display: flex;
+  align-items: baseline;
+  margin-right: 16rpx;
+}
+.score-num.data-v-2cad9976 {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--theme-accent);
+}
+.score-label.data-v-2cad9976 {
+  font-size: 24rpx;
+  color: var(--theme-accent);
+  margin-left: 4rpx;
+}
+.play-icon.data-v-2cad9976 {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  background: var(--theme-gradient);
+  color: #fff;
+  font-size: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+

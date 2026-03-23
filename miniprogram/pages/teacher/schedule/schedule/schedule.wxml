@@ -1,0 +1,25 @@
+<view class="container">
+  <view class="week-selector">
+    <view class="week-day {{currentWeekday === index ? 'active' : ''}}" wx:for="{{weekDays}}" wx:key="index" bindtap="selectDay" data-day="{{index}}">{{item}}</view>
+  </view>
+  <view class="card">
+    <view class="card-header">
+      <text class="card-title">{{weekDays[currentWeekday]}}课程</text>
+      <view class="add-btn" bindtap="addSchedule">+ 添加</view>
+    </view>
+    <view class="schedule-list" wx:if="{{currentDaySchedule.length > 0}}">
+      <view class="schedule-item" wx:for="{{currentDaySchedule}}" wx:key="index">
+        <view class="schedule-time">{{item.time}}</view>
+        <view class="schedule-dot"></view>
+        <view class="schedule-info">
+          <text class="schedule-class">{{item.className}}</text>
+          <text class="schedule-subject">{{item.subject}}</text>
+        </view>
+      </view>
+    </view>
+    <view class="empty-state" wx:if="{{currentDaySchedule.length === 0}}">
+      <text class="icon">📅</text>
+      <text class="text">今日无课</text>
+    </view>
+  </view>
+</view>

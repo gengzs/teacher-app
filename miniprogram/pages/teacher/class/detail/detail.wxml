@@ -1,0 +1,201 @@
+<view class="container">
+  <!-- 班级信息头部 -->
+  <view class="class-header">
+    <view class="class-avatar">{{classInfo.name ? classInfo.name[0] : '班'}}</view>
+    <view class="class-info">
+      <text class="class-name">{{classInfo.name}}</text>
+      <text class="class-count">
+        {{activeStudents.length}}名在班学生
+        <text class="pending-badge" wx:if="{{pendingRequests > 0}}" bindtap="goToJoinRequests">{{pendingRequests}}人待审核</text>
+      </text>
+    </view>
+    <view class="invite-code-box" bindtap="copyInviteCode">
+      <text class="invite-label">邀请码</text>
+      <text class="invite-value">{{classInfo.inviteCode}}</text>
+    </view>
+  </view>
+
+  <!-- 功能模块入口 -->
+  <view class="module-grid">
+    <!-- 班级成员（整合添加学生+入班申请） -->
+    <view class="module-card members-card" bindtap="goToStudents">
+      <view class="members-header">
+        <view class="module-icon">👥</view>
+        <view class="module-content">
+          <text class="module-title">班级成员</text>
+          <text class="module-desc">{{activeStudents.length}}人在班</text>
+        </view>
+        <text class="module-arrow">›</text>
+      </view>
+      <view class="members-actions">
+        <view class="member-btn" bindtap="goToStudents">
+          <text>添加学生</text>
+        </view>
+        <view class="member-btn" bindtap="goToJoinRequests">
+          <text>入班申请</text>
+          <view class="member-badge" wx:if="{{pendingRequests > 0}}">{{pendingRequests}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 班级资料库 -->
+    <view class="module-card" bindtap="goToLibrary">
+      <view class="module-icon">📚</view>
+      <view class="module-content">
+        <text class="module-title">班级资料库</text>
+        <text class="module-desc">文章列表，可选几篇发送</text>
+      </view>
+      <text class="module-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 上课模块 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">📖 上课</text>
+    </view>
+    <view class="action-row">
+      <view class="action-card primary" bindtap="startClass">
+        <view class="action-icon">🎯</view>
+        <text class="action-title">单词带背</text>
+        <text class="action-desc">抗遗忘复习</text>
+      </view>
+      <view class="action-card" bindtap="goToClassHistory">
+        <view class="action-icon">📜</view>
+        <text class="action-title">历史课程</text>
+        <text class="action-desc">查看上课记录</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 布置作业模块 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">📝 布置作业</text>
+    </view>
+    <view class="action-row">
+      <view class="action-card primary" bindtap="assignHomework">
+        <view class="action-icon">📝</view>
+        <text class="action-title">选资料库文章</text>
+        <text class="action-desc">语音打卡</text>
+      </view>
+      <view class="action-card" bindtap="assignHomework">
+        <view class="action-icon">🎤</view>
+        <text class="action-title">其他作业</text>
+        <text class="action-desc">自由布置</text>
+      </view>
+    </view>
+
+    <!-- 最近作业 -->
+    <view class="homework-list" wx:if="{{recentHomework.length > 0}}">
+      <view
+        class="homework-item"
+        wx:for="{{recentHomework}}"
+        wx:key="_id"
+        bindtap="goToHomeworkDetail"
+        data-id="{{item._id}}"
+      >
+        <view class="homework-icon">📄</view>
+        <view class="homework-info">
+          <text class="homework-title">{{item.title}}</text>
+          <text class="homework-meta">截止 {{item.deadline}}</text>
+        </view>
+        <view class="homework-progress">
+          <text class="progress-text">{{item.submitCount}}/{{item.totalCount}}</text>
+          <text class="progress-label">已交</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 班级统计 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">📊 班级统计</text>
+      <text class="section-more" bindtap="goToStats">详情 ›</text>
+    </view>
+    <view class="stats-row">
+      <view class="stat-item">
+        <text class="stat-value">{{stats.totalStudents}}</text>
+        <text class="stat-label">总人数</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{stats.homeworkDone}}</text>
+        <text class="stat-label">作业完成</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{stats.avgScore}}</text>
+        <text class="stat-label">平均分</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 手动添加学生弹窗 -->
+  <view class="modal {{showAddModal ? 'show' : ''}}">
+    <view class="modal-header">
+      <text class="modal-title">添加学生</text>
+      <view class="modal-close" bindtap="hideAddModal">✕</view>
+    </view>
+
+    <!-- 输入表单 -->
+    <view class="modal-body" wx:if="{{!newStudentResult}}">
+      <view class="form-item">
+        <text class="form-label">学生姓名 *</text>
+        <input
+          class="form-input"
+          placeholder="请输入学生姓名"
+          value="{{addName}}"
+          bindinput="onAddNameInput"
+        />
+      </view>
+      <view class="form-item">
+        <text class="form-label">手机号（可选）</text>
+        <input
+          class="form-input"
+          type="number"
+          placeholder="用于账号绑定"
+          value="{{addPhone}}"
+          bindinput="onAddPhoneInput"
+        />
+      </view>
+      <view class="form-hint">
+        <text class="hint-icon">💡</text>
+        <text class="hint-text">添加后系统会生成临时账号密码，请妥善保存</text>
+      </view>
+      <view class="modal-footer">
+        <view class="btn-cancel" bindtap="hideAddModal">取消</view>
+        <view class="btn-confirm {{addLoading ? 'loading' : ''}}" bindtap="submitAddStudent">
+          {{addLoading ? '添加中...' : '确认添加'}}
+        </view>
+      </view>
+    </view>
+
+    <!-- 添加成功结果 -->
+    <view class="modal-body result-body" wx:if="{{newStudentResult}}">
+      <view class="result-icon">✅</view>
+      <view class="result-title">添加成功</view>
+      <view class="result-info">
+        <view class="info-row">
+          <text class="info-label">姓名</text>
+          <text class="info-value">{{newStudentResult.name}}</text>
+        </view>
+        <view class="info-row" wx:if="{{newStudentResult.phone}}">
+          <text class="info-label">手机</text>
+          <text class="info-value">{{newStudentResult.phone}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">初始密码</text>
+          <text class="info-value highlight">{{newStudentResult.tempPassword}}</text>
+        </view>
+      </view>
+      <view class="result-tip">
+        <text class="tip-icon">⚠️</text>
+        <text class="tip-text">请将此账号信息发给家长或学生</text>
+      </view>
+      <view class="modal-footer">
+        <view class="btn-secondary" bindtap="copyAccountInfo">复制账号信息</view>
+        <view class="btn-confirm" bindtap="continueAdd">继续添加</view>
+      </view>
+    </view>
+  </view>
+</view>

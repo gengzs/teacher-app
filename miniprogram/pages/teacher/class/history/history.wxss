@@ -1,0 +1,179 @@
+/* 历史课程页面样式 */
+.container {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding: 20rpx;
+}
+
+/* 统计概览 */
+.stats-overview {
+  display: flex;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.stat-card {
+  flex: 1;
+  text-align: center;
+}
+
+.stat-card:not(:last-child) {
+  border-right: 1rpx solid #f0f0f0;
+}
+
+.stat-value {
+  display: block;
+  font-size: 44rpx;
+  font-weight: 700;
+  color: var(--theme-accent);
+  margin-bottom: 8rpx;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 课程列表 */
+.session-list {
+  background: #fff;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+
+.session-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.session-item:last-child {
+  border-bottom: none;
+}
+
+.session-date {
+  width: 100rpx;
+  text-align: center;
+  margin-right: 20rpx;
+}
+
+.date-day {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4rpx;
+}
+
+.date-weekday {
+  display: block;
+  font-size: 22rpx;
+  color: #999;
+}
+
+.session-content {
+  flex: 1;
+}
+
+.session-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.session-icon {
+  font-size: 40rpx;
+  margin-right: 12rpx;
+}
+
+.session-info {
+  flex: 1;
+}
+
+.session-type {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 4rpx;
+}
+
+.session-set {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.session-score {
+  text-align: right;
+}
+
+.score-value {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #52c41a;
+}
+
+.score-label {
+  font-size: 22rpx;
+  color: #999;
+}
+
+.session-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.session-meta {
+  display: flex;
+  gap: 16rpx;
+}
+
+.meta-item {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.participate-text {
+  font-size: 24rpx;
+  color: var(--theme-accent);
+}
+
+.session-arrow {
+  font-size: 36rpx;
+  color: #ccc;
+  margin-left: 16rpx;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 120rpx 0;
+}
+
+.empty-state .icon {
+  font-size: 120rpx;
+  margin-bottom: 30rpx;
+}
+
+.empty-state .text {
+  font-size: 28rpx;
+  color: #999;
+  margin-bottom: 12rpx;
+}
+
+.empty-state .hint {
+  font-size: 26rpx;
+  color: #ccc;
+}
+
+/* 自定义 TabBar 占位 */
+.container {
+  /* padding-bottom 已通过 style 属性在 wxml 中处理 */
+}

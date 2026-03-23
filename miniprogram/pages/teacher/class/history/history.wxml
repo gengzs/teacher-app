@@ -1,0 +1,65 @@
+<view class="container">
+  <!-- 统计概览 -->
+  <view class="stats-overview">
+    <view class="stat-card">
+      <text class="stat-value">{{sessions.length}}</text>
+      <text class="stat-label">总课时</text>
+    </view>
+    <view class="stat-card">
+      <text class="stat-value">12</text>
+      <text class="stat-label">参与人次</text>
+    </view>
+    <view class="stat-card">
+      <text class="stat-value">86</text>
+      <text class="stat-label">平均分</text>
+    </view>
+  </view>
+
+  <!-- 课程列表 -->
+  <view class="session-list">
+    <view
+      class="session-item"
+      wx:for="{{sessions}}"
+      wx:key="_id"
+      bindtap="goToSessionDetail"
+      data-id="{{item._id}}"
+    >
+      <view class="session-date">
+        <text class="date-day">{{item.dateStr}}</text>
+        <text class="date-weekday">{{getWeekday(item.date)}}</text>
+      </view>
+
+      <view class="session-content">
+        <view class="session-header">
+          <view class="session-icon">{{item.typeIcon}}</view>
+          <view class="session-info">
+            <text class="session-type">{{item.typeName}}</text>
+            <text class="session-set">{{item.wordSet}}</text>
+          </view>
+          <view class="session-score">
+            <text class="score-value">{{item.avgScore}}</text>
+            <text class="score-label">均分</text>
+          </view>
+        </view>
+
+        <view class="session-footer">
+          <view class="session-meta">
+            <text class="meta-item">🕐 {{item.time}} · {{item.duration}}</text>
+          </view>
+          <view class="session-participate">
+            <text class="participate-text">参与 {{item.participateCount}}/{{item.studentCount}}人</text>
+          </view>
+        </view>
+      </view>
+
+      <text class="session-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{sessions.length === 0}}">
+    <text class="icon">📜</text>
+    <text class="text">暂无上课记录</text>
+    <text class="hint">开始上课后会显示在这里</text>
+  </view>
+</view>

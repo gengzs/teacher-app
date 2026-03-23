@@ -1,0 +1,67 @@
+<view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <input
+      class="search-input"
+      placeholder="搜索学生姓名或班级"
+      value="{{searchKey}}"
+      bindinput="onSearch"
+    />
+    <view class="search-icon">🔍</view>
+  </view>
+
+  <!-- 筛选选项 -->
+  <view class="filter-bar">
+    <view class="filter-toggle" bindtap="toggleShowLeft">
+      <text class="{{showLeftStudents ? 'active' : ''}}">
+        {{showLeftStudents ? '全部学生' : '仅在班'}}
+      </text>
+    </view>
+    <text class="filter-count">{{filteredStudents.length}}名学生</text>
+  </view>
+
+  <!-- 学生列表 -->
+  <view class="student-list" wx:if="{{filteredStudents.length > 0}}">
+    <view
+      class="student-item {{item.status === 'inactive' ? 'left' : ''}}"
+      wx:for="{{filteredStudents}}"
+      wx:key="_id"
+    >
+      <view class="student-avatar {{item.status === 'inactive' ? 'left' : ''}}">
+        {{item.name[0]}}
+      </view>
+      <view class="student-info" bindtap="goToStudentDetail" data-id="{{item._id}}" data-name="{{item.name}}">
+        <text class="student-name">{{item.name}}</text>
+        <text class="student-class">{{item.className}}</text>
+      </view>
+      <view class="student-status">
+        <text wx:if="{{item.status === 'inactive'}}" class="status-tag left">已离班</text>
+        <text wx:if="{{item.status === 'active' && item.joinSource === 'invite'}}" class="status-tag invite">邀请加入</text>
+        <text wx:if="{{item.status === 'active' && item.joinSource === 'manual'}}" class="status-tag manual">手动添加</text>
+      </view>
+      <view class="student-action" wx:if="{{item.status === 'active'}}">
+        <view
+          class="action-btn remove"
+          bindtap="removeStudent"
+          data-id="{{item._id}}"
+          data-name="{{item.name}}"
+          data-classid="{{item.classId}}"
+        >移除</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{!loading && filteredStudents.length === 0}}">
+    <text class="icon">👨‍🎓</text>
+    <text class="text">{{searchKey ? '未找到匹配的学生' : '暂无学生'}}</text>
+    <view class="empty-btn" bindtap="goToClassList">
+      去班级添加学生
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-state" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+</view>

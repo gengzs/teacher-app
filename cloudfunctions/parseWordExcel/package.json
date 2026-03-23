@@ -1,0 +1,10 @@
+{
+  "name": "parseWordExcel",
+  "version": "1.0.0",
+  "description": "解析单词Excel文件云函数",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3",
+    "xlsx": "^0.18.5"
+  }
+}

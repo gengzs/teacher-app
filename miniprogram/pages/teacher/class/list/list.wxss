@@ -1,0 +1,123 @@
+/* 班级列表页 */
+.container {
+  min-height: 100vh;
+  background: linear-gradient(180deg, rgba(var(--theme-primary-rgb), 0.08) 0%, var(--theme-light) 100%);
+  padding: 0 24rpx;
+  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+/* 顶部标题 */
+.page-header {
+  padding: 24rpx 0 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.page-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #4a3f44;
+  letter-spacing: 2rpx;
+}
+
+/* 班级列表 */
+.class-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  padding-top: 8rpx;
+}
+
+/* 班级卡片 */
+.class-item {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 28rpx 24rpx;
+  border: 1rpx solid rgba(var(--theme-primary-rgb), 0.65);
+  box-shadow: 0 4rpx 16rpx rgba(74, 63, 68, 0.05);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  min-height: 120rpx;
+  box-sizing: border-box;
+}
+
+.class-item.item-dragging {
+  z-index: 10;
+  box-shadow: 0 12rpx 32rpx rgba(74, 63, 68, 0.14);
+  border-color: var(--theme-dark);
+  transform: scale(1.01);
+}
+
+/* 头像 */
+.class-avatar {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  font-weight: 600;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
+
+/* 班级信息 */
+.class-info {
+  flex: 1;
+  min-width: 0;
+}
+.class-name {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #3d3538;
+  margin-bottom: 8rpx;
+}
+.class-count {
+  font-size: 24rpx;
+  color: #9b8a90;
+}
+
+/* 邀请码 */
+.invite-code-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10rpx 20rpx;
+  background: #f8f5f7;
+  border-radius: 12rpx;
+  margin-left: 16rpx;
+  flex-shrink: 0;
+}
+.invite-label {
+  font-size: 20rpx;
+  color: #b0a0a6;
+  margin-bottom: 4rpx;
+}
+.invite-value {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #4a3f44;
+  letter-spacing: 2rpx;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 120rpx 0;
+}
+.empty-state .icon { font-size: 120rpx; margin-bottom: 30rpx; }
+.empty-state .text { font-size: 30rpx; color: #9b8a90; margin-bottom: 16rpx; }
+.empty-state .sub-text { font-size: 26rpx; color: #ccc; }
+
+/* 自定义 TabBar 占位 */
+.container {
+  /* padding-bottom 已通过 style 属性在 wxml 中处理 */
+}

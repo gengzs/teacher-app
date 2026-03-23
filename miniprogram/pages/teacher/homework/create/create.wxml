@@ -1,0 +1,144 @@
+<view class="container">
+  <!-- 步骤指示器 -->
+  <view class="step-indicator">
+    <view class="step-item {{currentStep >= 1 ? 'active' : ''}}">
+      <view class="step-dot">{{currentStep > 1 ? '✓' : '1'}}</view>
+      <text class="step-label">类型</text>
+    </view>
+    <view class="step-line {{currentStep >= 2 ? 'active' : ''}}"></view>
+    <view class="step-item {{currentStep >= 2 ? 'active' : ''}}">
+      <view class="step-dot">{{currentStep > 2 ? '✓' : '2'}}</view>
+      <text class="step-label">内容</text>
+    </view>
+    <view class="step-line {{currentStep >= 3 ? 'active' : ''}}"></view>
+    <view class="step-item {{currentStep >= 3 ? 'active' : ''}}">
+      <view class="step-dot">3</view>
+      <text class="step-label">时间</text>
+    </view>
+  </view>
+
+  <!-- 步骤1：选择类型 -->
+  <view wx:if="{{currentStep === 1}}" class="step-content">
+    <view class="card">
+      <view class="card-title">选择作业类型</view>
+      <view class="type-options">
+        <view class="type-option {{homeworkType === item.key ? 'selected' : ''}}" 
+              wx:for="{{typeOptions}}" 
+              wx:key="key"
+              bindtap="selectType"
+              data-type="{{item.key}}">
+          <view class="type-icon">{{item.icon}}</view>
+          <view class="type-info">
+            <text class="type-label">{{item.label}}</text>
+            <text class="type-desc">{{item.desc}}</text>
+          </view>
+          <view class="type-check" wx:if="{{homeworkType === item.key}}">✓</view>
+        </view>
+      </view>
+    </view>
+    <view class="bottom-btn">
+      <view class="btn-primary" bindtap="nextStep">下一步</view>
+    </view>
+  </view>
+
+  <!-- 步骤2：填写内容 -->
+  <view wx:if="{{currentStep === 2}}" class="step-content">
+    <view class="card">
+      <view class="card-title">选择班级</view>
+      <view class="class-grid">
+        <view class="class-option {{selectedClassId === item._id ? 'selected' : ''}}"
+              wx:for="{{classList}}"
+              wx:key="_id"
+              bindtap="selectClass"
+              data-id="{{item._id}}">
+          <text class="class-name">{{item.name}}</text>
+          <text class="class-count">{{item.studentCount}}人</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">作业标题</view>
+      <input class="form-input" 
+             placeholder="请输入作业标题" 
+             value="{{homeworkTitle}}"
+             bindinput="onTitleInput" />
+    </view>
+
+    <view class="card" wx:if="{{homeworkType === 'voice'}}">
+      <view class="card-title">跟读内容（每行一句）</view>
+      <textarea class="form-textarea"
+                placeholder="请输入要跟读的内容"
+                value="{{homeworkContent}}"
+                bindinput="onContentInput"></textarea>
+      <text class="form-hint" wx:if="{{contentLines.length > 0}}">已输入 {{contentLines.length}} 句</text>
+    </view>
+
+    <!-- 资料库文章选择 -->
+    <view class="card" wx:if="{{homeworkType === 'article' || selectedArticleDetails.length > 0}}">
+      <view class="card-header-row">
+        <view class="card-title">已选文章</view>
+        <view class="card-action" bindtap="goToLibrary">+ 添加</view>
+      </view>
+      <view class="article-list" wx:if="{{selectedArticleDetails.length > 0}}">
+        <view class="article-item" wx:for="{{selectedArticleDetails}}" wx:key="_id">
+          <text class="article-icon">📄</text>
+          <view class="article-info">
+            <text class="article-title">{{item.title}}</text>
+            <text class="article-meta">{{item.wordCount}}词</text>
+          </view>
+        </view>
+      </view>
+      <view class="empty-articles" wx:if="{{selectedArticleDetails.length === 0}}">
+        <text class="empty-text">未选择文章</text>
+        <view class="empty-btn" bindtap="goToLibrary">去资料库选择</view>
+      </view>
+    </view>
+
+    <view class="bottom-btns">
+      <view class="btn-secondary" bindtap="prevStep">上一步</view>
+      <view class="btn-primary" bindtap="nextStep">下一步</view>
+    </view>
+  </view>
+
+  <!-- 步骤3：设置时间 -->
+  <view wx:if="{{currentStep === 3}}" class="step-content">
+    <view class="card">
+      <view class="card-title">设置截止时间</view>
+      <picker mode="date" 
+              value="{{deadline}}" 
+              start="{{minDate}}"
+              bindchange="onDateChange">
+        <view class="date-picker">
+          <text class="date-text {{deadline ? '' : 'placeholder'}}">{{deadline || '请选择日期'}}</text>
+          <text class="date-arrow">›</text>
+        </view>
+      </picker>
+    </view>
+
+    <view class="card summary-card">
+      <view class="card-title">作业预览</view>
+      <view class="summary-item">
+        <text class="summary-label">类型</text>
+        <text class="summary-value">{{homeworkType === 'voice' ? '语音朗读' : '单词带背'}}</text>
+      </view>
+      <view class="summary-item">
+        <text class="summary-label">班级</text>
+        <text class="summary-value">{{selectedClassName}}</text>
+      </view>
+      <view class="summary-item">
+        <text class="summary-label">标题</text>
+        <text class="summary-value">{{homeworkTitle}}</text>
+      </view>
+      <view class="summary-item" wx:if="{{contentLines.length > 0}}">
+        <text class="summary-label">内容</text>
+        <text class="summary-value">{{contentLines.length}}句</text>
+      </view>
+    </view>
+
+    <view class="bottom-btns">
+      <view class="btn-secondary" bindtap="prevStep">上一步</view>
+      <view class="btn-primary" bindtap="publishHomework">发布作业</view>
+    </view>
+  </view>
+</view>

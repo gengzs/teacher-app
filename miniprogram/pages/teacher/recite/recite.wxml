@@ -1,0 +1,99 @@
+<view class="recite-page">
+  <!-- ========== 筛词模式 ========== -->
+  <view wx:if="{{mode === 'filtering'}}" class="filtering-mode">
+    <!-- 顶部 -->
+    <view class="filter-header">
+      <view class="header-info">
+        <text class="set-name">{{setName || '单词带背'}}</text>
+        <text class="progress-text">已标记 {{knownCount + unknownCount}} / 共 {{totalCount}} 词</text>
+      </view>
+      <view class="header-actions">
+        <view class="text-btn" bindtap="goChooseWordSet">换词库</view>
+        <view class="text-btn" bindtap="exit">退出</view>
+      </view>
+    </view>
+
+    <!-- 进度条 -->
+    <view class="progress-bar">
+      <view class="progress-known" style="width: {{totalCount > 0 ? (knownCount / totalCount) * 100 : 0}}%"></view>
+      <view class="progress-unknown" style="width: {{totalCount > 0 ? (unknownCount / totalCount) * 100 : 0}}%"></view>
+    </view>
+
+    <!-- 统计标签 -->
+    <view class="progress-labels">
+      <text class="label known">✓ 认识 {{knownCount}}</text>
+      <text class="label unknown">✗ 待学习 {{unknownCount}}</text>
+    </view>
+
+    <!-- 单词列表 -->
+    <scroll-view class="filter-scroll" scroll-y>
+      <view
+        class="filter-row {{item.filterStatus === 'known' ? 'row-known' : ''}} {{item.filterStatus === 'unknown' ? 'row-unknown' : ''}}"
+        wx:for="{{allWords}}"
+        wx:key="_id"
+      >
+        <view class="filter-row-main">
+          <text class="filter-word">{{item.word}}</text>
+          <text class="filter-sub" wx:if="{{item.phonetic}}">{{item.phonetic}}</text>
+        </view>
+        <view class="filter-row-actions">
+          <view
+            class="row-btn known-btn {{item.filterStatus === 'known' ? 'active' : ''}}"
+            catchtap="markKnownAt"
+            data-index="{{index}}"
+          >✓</view>
+          <view
+            class="row-btn unknown-btn {{item.filterStatus === 'unknown' ? 'active' : ''}}"
+            catchtap="markUnknownAt"
+            data-index="{{index}}"
+          >✗</view>
+        </view>
+      </view>
+      <!-- 底部留白，避免最后一行被固定栏挡住 -->
+      <view class="filter-scroll-spacer"></view>
+    </scroll-view>
+
+    <!-- 底部固定：分组学习入口（始终可见） -->
+    <view class="start-learning-bar">
+      <view class="start-learning-hint" wx:if="{{unknownCount === 0}}">请先点右侧 ✗ 标记不认识的词</view>
+      <view
+        class="start-learning-btn {{unknownCount > 0 ? '' : 'disabled'}}"
+        bindtap="onStartLearningTap"
+      >
+        {{unknownCount > 0 ? '进入分组学习（' + unknownCount + ' 个待学）›' : '进入分组学习'}}
+      </view>
+    </view>
+  </view>
+
+  <!-- ========== 结果页 ========== -->
+  <view wx:if="{{mode === 'result'}}" class="result-mode">
+    <view class="result-icon">🎉</view>
+    <text class="result-title">筛选完成！</text>
+    <text class="result-subtitle">{{setName}}</text>
+
+    <view class="result-stats">
+      <view class="stat-card known-card">
+        <text class="stat-value">{{knownCount}}</text>
+        <text class="stat-label">认识</text>
+      </view>
+      <view class="stat-card unknown-card">
+        <text class="stat-value">{{unknownCount}}</text>
+        <text class="stat-label">不认识</text>
+      </view>
+      <view class="stat-card total-card">
+        <text class="stat-value">{{totalCount}}</text>
+        <text class="stat-label">总单词</text>
+      </view>
+    </view>
+
+    <view class="accuracy-display" wx:if="{{totalCount > 0}}">
+      <text class="accuracy-value">{{accuracyPercent}}%</text>
+      <text class="accuracy-label">认识占比</text>
+    </view>
+
+    <view class="result-actions">
+      <view class="result-btn outline" bindtap="goBack">词库管理</view>
+      <view class="result-btn primary" bindtap="restart">再来一次</view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,157 @@
+{
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      "^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue",
+      "^custom-tabbar$": "@/components/custom-tabbar/custom-tabbar.vue"
+    }
+  },
+  "pages": [
+    {
+      "path": "pages/teacher/home/home",
+      "style": {
+        "navigationBarTitleText": "首页"
+      }
+    },
+    {
+      "path": "pages/theme/theme",
+      "style": {
+        "navigationBarTitleText": "主题设置"
+      }
+    },
+    {
+      "path": "pages/teacher/homework/homework",
+      "style": {
+        "navigationBarTitleText": "作业管理"
+      }
+    },
+    {
+      "path": "pages/teacher/homework/create/create",
+      "style": {
+        "navigationBarTitleText": "创建作业"
+      }
+    },
+    {
+      "path": "pages/teacher/homework/detail/detail",
+      "style": {
+        "navigationBarTitleText": "作业详情"
+      }
+    },
+    {
+      "path": "pages/teacher/words/words",
+      "style": {
+        "navigationBarTitleText": "单词管理"
+      }
+    },
+    {
+      "path": "pages/teacher/profile/profile",
+      "style": {
+        "navigationBarTitleText": "个人中心"
+      }
+    },
+    {
+      "path": "pages/teacher/recite/recite",
+      "style": {
+        "navigationBarTitleText": "跟读背诵"
+      }
+    },
+    {
+      "path": "pages/teacher/recite/groupLearn/groupLearn",
+      "style": {
+        "navigationBarTitleText": "跟读学习"
+      }
+    },
+    {
+      "path": "pages/teacher/recite/groupTest/groupTest",
+      "style": {
+        "navigationBarTitleText": "跟读测试"
+      }
+    },
+    {
+      "path": "pages/teacher/class/list/list",
+      "style": {
+        "navigationBarTitleText": "我的班级"
+      }
+    },
+    {
+      "path": "pages/teacher/class/detail/detail",
+      "style": {
+        "navigationBarTitleText": "班级详情"
+      }
+    },
+    {
+      "path": "pages/teacher/class/library/library",
+      "style": {
+        "navigationBarTitleText": "单词库"
+      }
+    },
+    {
+      "path": "pages/teacher/class/history/history",
+      "style": {
+        "navigationBarTitleText": "学习记录"
+      }
+    },
+    {
+      "path": "pages/teacher/class/stats/stats",
+      "style": {
+        "navigationBarTitleText": "班级统计"
+      }
+    },
+    {
+      "path": "pages/teacher/schedule/schedule",
+      "style": {
+        "navigationBarTitleText": "课程表"
+      }
+    },
+    {
+      "path": "pages/teacher/records/records/records",
+      "style": {
+        "navigationBarTitleText": "跟读记录"
+      }
+    },
+    {
+      "path": "pages/teacher/students/list/list",
+      "style": {
+        "navigationBarTitleText": "学生列表"
+      }
+    },
+    {
+      "path": "pages/teacher/students/requests/requests",
+      "style": {
+        "navigationBarTitleText": "入班申请"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "英语口语助手",
+    "navigationBarBackgroundColor": "#F9E2E6",
+    "backgroundColor": "#FDF6F8"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#999999",
+    "selectedColor": "#C47786",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/teacher/home/home",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/teacher/homework/homework",
+        "text": "作业"
+      },
+      {
+        "pagePath": "pages/teacher/class/list/list",
+        "text": "班级"
+      },
+      {
+        "pagePath": "pages/teacher/profile/profile",
+        "text": "我的"
+      }
+    ]
+  },
+  "uniIdRouter": {}
+}

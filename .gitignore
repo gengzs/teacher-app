@@ -1,0 +1,27 @@
+# 依赖
+node_modules/
+
+# 构建产物
+web/frontend/dist/
+
+# 环境变量（不要上传微信密钥！）
+.env
+
+# 日志
+*.log
+npm-debug.log*
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Railway 配置（不用上传）
+railway.sh
+railway.toml
+nixpacks.toml

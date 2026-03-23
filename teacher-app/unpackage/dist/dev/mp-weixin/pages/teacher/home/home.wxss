@@ -1,0 +1,193 @@
+
+.container.data-v-3732340e {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding: 20rpx;
+  padding-bottom: 140rpx;
+}
+.header.data-v-3732340e {
+  margin-bottom: 24rpx;
+}
+.welcome.data-v-3732340e {
+  display: flex;
+  flex-direction: column;
+}
+.welcome-text.data-v-3732340e {
+  font-size: 44rpx;
+  font-weight: 600;
+  color: #333;
+}
+.welcome-date.data-v-3732340e {
+  font-size: 28rpx;
+  color: #999;
+  margin-top: 8rpx;
+}
+
+/* 统计数据 */
+.stats-row.data-v-3732340e {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+}
+.stat-card.data-v-3732340e {
+  flex: 1;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 28rpx 16rpx;
+  text-align: center;
+  margin: 0 6rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
+}
+.stat-card.data-v-3732340e:first-child {
+  margin-left: 0;
+}
+.stat-card.data-v-3732340e:last-child {
+  margin-right: 0;
+}
+.stat-num.data-v-3732340e {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: var(--theme-accent);
+}
+.stat-label.data-v-3732340e {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 8rpx;
+}
+
+/* 快捷操作 */
+.quick-actions.data-v-3732340e {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+}
+.quick-btn.data-v-3732340e {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  margin: 0 8rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
+}
+.quick-btn.data-v-3732340e:first-child {
+  margin-left: 0;
+}
+.quick-btn.data-v-3732340e:last-child {
+  margin-right: 0;
+}
+.quick-btn.primary.data-v-3732340e {
+  background: var(--theme-gradient);
+}
+.quick-btn.primary .quick-text.data-v-3732340e {
+  color: var(--theme-accent);
+}
+.quick-icon.data-v-3732340e {
+  font-size: 48rpx;
+  margin-bottom: 12rpx;
+}
+.quick-text.data-v-3732340e {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+/* 卡片 */
+.card.data-v-3732340e {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+.card-header.data-v-3732340e {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+.card-title.data-v-3732340e {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+.more.data-v-3732340e {
+  font-size: 26rpx;
+  color: var(--theme-accent);
+}
+
+/* 课程列表 */
+.schedule-list.data-v-3732340e {
+  margin-top: 10rpx;
+}
+.schedule-item.data-v-3732340e {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+.schedule-item.data-v-3732340e:last-child {
+  border-bottom: none;
+}
+.schedule-time-box.data-v-3732340e {
+  width: 140rpx;
+  flex-shrink: 0;
+}
+.schedule-time.data-v-3732340e {
+  font-size: 26rpx;
+  color: #666;
+}
+.schedule-dot.data-v-3732340e {
+  width: 12rpx;
+  height: 12rpx;
+  background: var(--theme-accent);
+  border-radius: 50%;
+  margin: 0 20rpx;
+  flex-shrink: 0;
+}
+.schedule-info.data-v-3732340e {
+  flex: 1;
+}
+.schedule-class.data-v-3732340e {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 6rpx;
+}
+.schedule-subject.data-v-3732340e {
+  font-size: 24rpx;
+  color: #999;
+}
+.schedule-action.data-v-3732340e {
+  font-size: 28rpx;
+  color: var(--theme-accent);
+}
+
+/* 空状态 */
+.empty-state.data-v-3732340e {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60rpx 0;
+}
+.empty-state .icon.data-v-3732340e {
+  font-size: 80rpx;
+  margin-bottom: 20rpx;
+}
+.empty-state .text.data-v-3732340e {
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* 底部提示 */
+.tab-tip.data-v-3732340e {
+  text-align: center;
+  padding: 30rpx 0;
+}
+.tab-tip text.data-v-3732340e {
+  font-size: 24rpx;
+  color: #ccc;
+}
+

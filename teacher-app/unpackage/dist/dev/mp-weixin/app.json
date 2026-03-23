@@ -1,0 +1,61 @@
+{
+  "pages": [
+    "pages/teacher/home/home",
+    "pages/theme/theme",
+    "pages/teacher/homework/homework",
+    "pages/teacher/homework/create/create",
+    "pages/teacher/homework/detail/detail",
+    "pages/teacher/words/words",
+    "pages/teacher/profile/profile",
+    "pages/teacher/recite/recite",
+    "pages/teacher/recite/groupLearn/groupLearn",
+    "pages/teacher/recite/groupTest/groupTest",
+    "pages/teacher/class/list/list",
+    "pages/teacher/class/detail/detail",
+    "pages/teacher/class/library/library",
+    "pages/teacher/class/history/history",
+    "pages/teacher/class/stats/stats",
+    "pages/teacher/schedule/schedule",
+    "pages/teacher/records/records/records",
+    "pages/teacher/students/list/list",
+    "pages/teacher/students/requests/requests"
+  ],
+  "subPackages": [],
+  "window": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "英语口语助手",
+    "navigationBarBackgroundColor": "#F9E2E6",
+    "backgroundColor": "#FDF6F8"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#999999",
+    "selectedColor": "#C47786",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/teacher/home/home",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/teacher/homework/homework",
+        "text": "作业"
+      },
+      {
+        "pagePath": "pages/teacher/class/list/list",
+        "text": "班级"
+      },
+      {
+        "pagePath": "pages/teacher/profile/profile",
+        "text": "我的"
+      }
+    ]
+  },
+  "permission": {
+    "scope.record": {
+      "desc": "用于录制您的跟读发音"
+    }
+  },
+  "usingComponents": {}
+}

@@ -1,0 +1,51 @@
+<view class="container">
+  <!-- 用户信息卡片 -->
+  <view class="user-card">
+    <view class="user-avatar">
+      <text>{{userInfo.name ? userInfo.name[0] : '老'}}</text>
+    </view>
+    <view class="user-info">
+      <text class="user-name">{{userInfo.name}}</text>
+      <text class="user-school">{{userInfo.school}}</text>
+    </view>
+  </view>
+
+  <!-- 统计数据 -->
+  <view class="stats-row">
+    <view class="stat-item">
+      <text class="stat-num">{{stats.classCount}}</text>
+      <text class="stat-label">班级</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-num">{{stats.studentCount}}</text>
+      <text class="stat-label">学生</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-num">{{stats.taskCount}}</text>
+      <text class="stat-label">任务</text>
+    </view>
+  </view>
+
+  <!-- 菜单列表 -->
+  <view class="card menu-card">
+    <view class="menu-item" 
+          wx:for="{{menuItems}}" 
+          wx:key="id"
+          bindtap="goToPage"
+          data-id="{{item.id}}">
+      <view class="menu-icon">{{item.icon}}</view>
+      <view class="menu-content">
+        <text class="menu-title">{{item.title}}</text>
+        <text class="menu-subtitle">{{item.subtitle}}</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 版本信息 -->
+  <view class="version-info" bindtap="showAbout">
+    <text class="version-text">英语口语助手 v1.0.0</text>
+  </view>
+</view>

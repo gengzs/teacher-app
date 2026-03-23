@@ -1,0 +1,39 @@
+{
+  "pages": [
+    "pages/teacher/shell/shell",
+    "pages/teacher/home/home",
+    "pages/theme/theme",
+    "pages/teacher/homework/homework",
+    "pages/teacher/words/words",
+    "pages/teacher/profile/profile",
+    "pages/teacher/recite/recite",
+    "pages/teacher/recite/groupLearn/groupLearn",
+    "pages/teacher/recite/groupTest/groupTest",
+    "pages/teacher/class/list/list",
+    "pages/teacher/class/detail/detail",
+    "pages/teacher/homework/create/create",
+    "pages/teacher/homework/detail/detail",
+    "pages/teacher/schedule/schedule",
+    "pages/teacher/stats/stats/stats",
+    "pages/teacher/records/records/records",
+    "pages/teacher/students/list/list",
+    "pages/teacher/students/requests/requests",
+    "pages/teacher/class/library/library",
+    "pages/teacher/class/history/history",
+    "pages/teacher/class/stats/stats"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#F9E2E6",
+    "navigationBarTitleText": "英语口语助手",
+    "navigationBarTextStyle": "white"
+  },
+  "permission": {
+    "scope.record": {
+      "desc": "用于录制您的跟读发音"
+    }
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

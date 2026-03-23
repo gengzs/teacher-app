@@ -1,0 +1,9 @@
+{
+  "usingComponents": {
+    "custom-tabbar": "/components/custom-tabbar/custom-tabbar"
+  },
+  "component": true,
+  "componentPlaceholder": {
+    "custom-tabbar": "view"
+  }
+}

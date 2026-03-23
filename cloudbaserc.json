@@ -1,0 +1,9 @@
+{
+  "miniprogramRoot": "miniprogram/",
+  "cloudfunctionRoot": "cloudfunctions/",
+  "projectname": "TeacherApp",
+  "appid": "your-appid"
+}
+
+
+

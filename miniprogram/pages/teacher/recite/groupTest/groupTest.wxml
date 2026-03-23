@@ -1,0 +1,115 @@
+<view class="test-page">
+  <!-- 顶部 -->
+  <view class="test-header">
+    <view class="header-left" bindtap="goBack">
+      <text class="back-arrow">‹</text>
+    </view>
+    <view class="header-center">
+      <text class="header-title">{{setName || '单词检测'}}</text>
+      <text class="header-sub">全部 {{totalCount}} 个词</text>
+    </view>
+    <view class="header-right">
+      <text class="marked-count">{{markedCount}} / {{totalCount}}</text>
+    </view>
+  </view>
+
+  <!-- 进度条 -->
+  <view class="test-progress">
+    <view class="progress-fill" style="width: {{progressPercent}}%"></view>
+  </view>
+
+  <!-- 单词列表 -->
+  <scroll-view class="test-scroll" scroll-y>
+    <view class="test-list">
+      <view
+        class="test-row {{item.testStatus === 'right' ? 'row-right' : ''}} {{item.testStatus === 'wrong' ? 'row-wrong' : ''}}"
+        wx:for="{{allWords}}"
+        wx:key="_id"
+      >
+        <!-- 左侧：单词 -->
+        <view class="test-left">
+          <text class="test-word">{{item.word}}</text>
+          <text class="test-hint" wx:if="{{item.testStatus === 'right'}}">✓ 认识</text>
+          <text class="test-hint wrong-hint" wx:if="{{item.testStatus === 'wrong'}}">✗ 不认识</text>
+        </view>
+
+        <!-- 右侧：✓ / ✗ -->
+        <view class="test-actions">
+          <view
+            class="test-btn right-btn {{item.testStatus === 'right' ? 'active' : ''}}"
+            catchtap="onMarkRight"
+            data-index="{{index}}"
+          >✓</view>
+          <view
+            class="test-btn wrong-btn {{item.testStatus === 'wrong' ? 'active' : ''}}"
+            catchtap="onMarkWrong"
+            data-index="{{index}}"
+          >✗</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 底部留白 -->
+    <view class="scroll-spacer"></view>
+  </scroll-view>
+
+  <!-- 底部固定：完成检测 -->
+  <view class="test-footer">
+    <view class="footer-stats">
+      <text class="stat-known">✓ 认识 {{rightCount}}</text>
+      <text class="stat-unknown">✗ 不认识 {{wrongCount}}</text>
+    </view>
+    <view
+      class="finish-btn {{markedCount > 0 ? '' : 'disabled'}}"
+      bindtap="onFinishTest"
+    >{{markedCount > 0 ? '查看检测结果' : '请先标记'}}</view>
+  </view>
+
+  <!-- 检测结果弹窗 -->
+  <view class="result-modal-mask {{showResult ? 'show' : ''}}" bindtap="closeResult"></view>
+  <view class="result-modal {{showResult ? 'show' : ''}}">
+    <view class="result-modal-header">
+      <text class="result-modal-title">🎉 检测完成</text>
+    </view>
+
+    <view class="result-modal-body">
+      <!-- 正确率大字 -->
+      <view class="accuracy-circle">
+        <text class="accuracy-num">{{accuracyPercent}}%</text>
+        <text class="accuracy-label">正确率</text>
+      </view>
+
+      <!-- 结果卡片 -->
+      <view class="result-cards">
+        <view class="result-card right-card">
+          <text class="rc-value">{{rightCount}}</text>
+          <text class="rc-label">✓ 认识</text>
+        </view>
+        <view class="result-card wrong-card">
+          <text class="rc-value">{{wrongCount}}</text>
+          <text class="rc-label">✗ 不认识</text>
+        </view>
+      </view>
+
+      <!-- 操作按钮 -->
+      <view class="result-actions">
+        <view class="result-action-btn print-btn" bindtap="onPrintNotes">
+          <text class="action-icon">🖨️</text>
+          <text class="action-text">打印笔记 PDF</text>
+        </view>
+        <view class="result-action-btn" bindtap="onRetryTest">
+          <text class="action-icon">🔄</text>
+          <text class="action-text">重新检测</text>
+        </view>
+        <view class="result-action-btn" bindtap="onBackToLearn">
+          <text class="action-icon">📖</text>
+          <text class="action-text">返回学习</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="result-modal-footer">
+      <view class="result-done-btn" bindtap="onFinishAndBack">完成，返回课程</view>
+    </view>
+  </view>
+</view>

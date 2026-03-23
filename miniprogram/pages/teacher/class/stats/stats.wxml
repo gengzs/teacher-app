@@ -1,0 +1,118 @@
+<view class="container">
+  <!-- 班级信息 -->
+  <view class="class-banner">
+    <text class="banner-title">{{className}}</text>
+    <text class="banner-subtitle">班级学习数据统计</text>
+  </view>
+
+  <!-- 概览数据 -->
+  <view class="overview-grid">
+    <view class="overview-card">
+      <text class="overview-value">{{stats.totalStudents}}</text>
+      <text class="overview-label">班级人数</text>
+    </view>
+    <view class="overview-card">
+      <text class="overview-value">{{stats.totalHomework}}</text>
+      <text class="overview-label">布置作业</text>
+    </view>
+    <view class="overview-card">
+      <text class="overview-value">{{stats.completedHomework}}</text>
+      <text class="overview-label">完成人次</text>
+    </view>
+    <view class="overview-card highlight">
+      <text class="overview-value">{{stats.avgScore}}</text>
+      <text class="overview-label">班级均分</text>
+    </view>
+  </view>
+
+  <!-- 本周学习趋势 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">📈 本周学习趋势</text>
+    </view>
+    <view class="trend-card">
+      <view class="trend-chart">
+        <view
+          class="trend-bar"
+          wx:for="{{weeklyData}}"
+          wx:key="day"
+          style="height: {{item.score / getMaxScore() * 100}}%"
+        >
+          <view class="bar-fill" wx:if="{{item.score > 0}}"></view>
+          <text class="bar-score" wx:if="{{item.score > 0}}">{{item.score}}</text>
+        </view>
+      </view>
+      <view class="trend-labels">
+        <text class="label-item" wx:for="{{weeklyData}}" wx:key="day">{{item.day}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 学习标兵 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">🏆 学习标兵</text>
+    </view>
+    <view class="student-list">
+      <view
+        class="student-item"
+        wx:for="{{topStudents}}"
+        wx:key="index"
+        wx:for-index="index"
+        bindtap="goToStudentDetail"
+        data-name="{{item.name}}"
+      >
+        <view class="rank {{index < 3 ? 'top' : ''}}">{{index + 1}}</view>
+        <view class="student-info">
+          <text class="student-name">{{item.name}}</text>
+          <text class="student-meta">完成 {{item.completed}} 次</text>
+        </view>
+        <view class="student-score">{{item.avgScore}}分</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 需要关注 -->
+  <view class="section" wx:if="{{weakStudents.length > 0}}">
+    <view class="section-header">
+      <text class="section-title">⚠️ 需要关注</text>
+    </view>
+    <view class="student-list warning">
+      <view
+        class="student-item"
+        wx:for="{{weakStudents}}"
+        wx:key="index"
+        bindtap="goToStudentDetail"
+        data-name="{{item.name}}"
+      >
+        <view class="rank warning-rank">!</view>
+        <view class="student-info">
+          <text class="student-name">{{item.name}}</text>
+          <text class="student-meta">完成 {{item.completed}} 次 · 需跟进</text>
+        </view>
+        <view class="student-score warning">{{item.avgScore}}分</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 作业完成情况 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">📝 最近作业完成情况</text>
+    </view>
+    <view class="homework-list">
+      <view class="homework-item" wx:for="{{recentHomework}}" wx:key="title">
+        <view class="homework-info">
+          <text class="homework-title">{{item.title}}</text>
+          <view class="homework-progress-bar">
+            <view class="progress-fill" style="width: {{item.submitRate}}%"></view>
+          </view>
+        </view>
+        <view class="homework-stats">
+          <text class="submit-rate">{{item.submitRate}}%</text>
+          <text class="avg-score">均分 {{item.avgScore}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,22 @@
+<view class="container" style="padding-bottom: 120rpx;">
+  <view class="stats-grid">
+    <view class="stat-card"><view class="stat-num">{{stats.totalStudents}}</view><view class="stat-label">学生总数</view></view>
+    <view class="stat-card"><view class="stat-num">{{stats.todayCompleted}}</view><view class="stat-label">今日完成</view></view>
+    <view class="stat-card"><view class="stat-num">{{stats.avgScore}}</view><view class="stat-label">平均分</view></view>
+  </view>
+  <view class="card">
+    <view class="card-title">最近完成情况</view>
+    <view class="record-list" wx:if="{{recentRecords.length > 0}}">
+      <view class="record-item" wx:for="{{recentRecords}}" wx:key="index">
+        <view class="student-info">
+          <view class="avatar">{{item.studentName[0]}}</view>
+          <view class="info"><text class="name">{{item.studentName}}</text><text class="desc">{{item.wordSet}} · {{item.date}}</text></view>
+        </view>
+        <view class="score-badge">{{item.score}}分</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 自定义 TabBar -->
+  <custom-tabbar currentTab="{{currentTab}}" bind:switch="onTabSwitch" />
+</view>

@@ -1,0 +1,56 @@
+<!-- 主题选择页面 -->
+<view class="theme-page theme-{{currentThemeId}}">
+  <view class="page-header">
+    <view class="header-icon" style="background: {{currentTheme.gradient}}">
+      <text class="icon-text">🎨</text>
+    </view>
+    <text class="header-title">选择你喜欢的颜色</text>
+    <text class="header-desc">为应用选择一个专属主题</text>
+  </view>
+
+  <view class="theme-selector">
+    <view class="theme-grid">
+      <view 
+        class="theme-item {{theme.id === currentThemeId ? 'active' : ''}}"
+        wx:for="{{themes}}"
+        wx:key="id"
+        data-theme="{{item.id}}"
+        bindtap="selectTheme"
+      >
+        <view 
+          class="theme-color-block"
+          style="background: {{item.gradient}}"
+        ></view>
+        <text class="theme-name">{{item.name}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="preview-section">
+    <view class="preview-title">预览效果</view>
+    <view class="preview-card">
+      <view class="preview-header" style="background: {{currentTheme.gradient}}">
+        <text class="preview-header-text" style="color: {{currentTheme.text}}">英语口语助手</text>
+      </view>
+      <view class="preview-content">
+        <view class="preview-btn-primary" style="background: {{currentTheme.gradient}}; color: {{currentTheme.text}}">
+          主按钮
+        </view>
+        <view class="preview-btn-secondary" style="border-color: {{currentTheme.primary}}; color: {{currentTheme.accent}}">
+          次要按钮
+        </view>
+        <view class="preview-stat" style="color: {{currentTheme.accent}}">
+          <text class="stat-num">85%</text>
+          <text class="stat-label">完成率</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="action-section">
+    <button class="confirm-btn" style="background: {{currentTheme.gradient}}; color: {{currentTheme.text}}" bindtap="confirmTheme">
+      应用主题
+    </button>
+  </view>
+</view>
+

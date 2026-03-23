@@ -1,0 +1,221 @@
+/* ==================== 教师端全局样式 ==================== */
+page {
+  background-color: var(--theme-light, #FDF6F8);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 28rpx;
+  color: #333333;
+}
+.container {
+  padding: 24rpx;
+  box-sizing: border-box;
+  min-height: 100vh;
+}
+/* ==================== 主题色变量（默认樱花粉） ==================== */
+page {
+  --theme-primary: #F9E2E6;
+  --theme-dark: #F5D0D8;
+  --theme-accent: #C47786;
+  --theme-text: #8B6B75;
+  --theme-light: #FDF6F8;
+  --theme-gradient: linear-gradient(135deg, #F9E2E6 0%, #F5D0D8 100%);
+  --theme-accent-rgb: 196, 119, 134;
+  --theme-primary-rgb: 249, 226, 230;
+  --theme-text-rgb: 139, 107, 117;
+}
+/* 天空蓝主题 */
+.theme-blue {
+  --theme-primary: #87CEEB;
+  --theme-dark: #6BBFDE;
+  --theme-accent: #4A9EC5;
+  --theme-text: #2E6B85;
+  --theme-light: #E8F4FA;
+  --theme-gradient: linear-gradient(135deg, #87CEEB 0%, #6BBFDE 100%);
+  background-color: #E8F4FA;
+}
+.theme-blue .container {
+  background-color: #E8F4FA;
+}
+/* 抹茶绿主题 */
+.theme-green {
+  --theme-primary: #A8D5A2;
+  --theme-dark: #92CC8C;
+  --theme-accent: #6BAF70;
+  --theme-text: #4A7A52;
+  --theme-light: #E8F5E6;
+  --theme-gradient: linear-gradient(135deg, #A8D5A2 0%, #92CC8C 100%);
+  background-color: #E8F5E6;
+}
+.theme-green .container {
+  background-color: #E8F5E6;
+}
+/* 薰衣草主题 */
+.theme-purple {
+  --theme-primary: #DDA0DD;
+  --theme-dark: #D090D0;
+  --theme-accent: #B06AB0;
+  --theme-text: #7A4A7A;
+  --theme-light: #F5E6F5;
+  --theme-gradient: linear-gradient(135deg, #DDA0DD 0%, #D090D0 100%);
+  background-color: #F5E6F5;
+}
+.theme-purple .container {
+  background-color: #F5E6F5;
+}
+/* 活力橙主题 */
+.theme-orange {
+  --theme-primary: #FFB366;
+  --theme-dark: #FFA54D;
+  --theme-accent: #E67E22;
+  --theme-text: #8B5A2B;
+  --theme-light: #FFF3E6;
+  --theme-gradient: linear-gradient(135deg, #FFB366 0%, #FFA54D 100%);
+  background-color: #FFF3E6;
+}
+.theme-orange .container {
+  background-color: #FFF3E6;
+}
+/* ==================== 主题色 ==================== */
+.theme-color { color: var(--theme-primary);
+}
+.theme-bg { background: var(--theme-gradient);
+}
+.theme-accent { color: var(--theme-accent);
+}
+/* ==================== 卡片 ==================== */
+.card {
+  background-color: #ffffff;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+}
+.card-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 24rpx;
+}
+/* ==================== 按钮 ==================== */
+.btn-primary {
+  background: var(--theme-gradient);
+  color: var(--theme-text);
+  border-radius: 44rpx;
+  padding: 26rpx 48rpx;
+  font-size: 32rpx;
+  text-align: center;
+  border: none;
+}
+.btn-primary:active { opacity: 0.85;
+}
+.btn-secondary {
+  background-color: #ffffff;
+  color: var(--theme-accent);
+  border: 2rpx solid var(--theme-primary);
+  border-radius: 44rpx;
+  padding: 24rpx 48rpx;
+  font-size: 32rpx;
+  text-align: center;
+}
+/* ==================== 标签栏 ==================== */
+.tab-bar {
+  display: flex;
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 8rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+}
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 18rpx 0;
+  font-size: 28rpx;
+  color: #666666;
+  border-radius: 12rpx;
+  transition: all 0.2s ease;
+}
+.tab-item.active {
+  color: var(--theme-text);
+  background: var(--theme-gradient);
+  font-weight: 600;
+}
+/* ==================== 列表项 ==================== */
+.list-item {
+  display: flex;
+  align-items: center;
+  padding: 28rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+.list-item:last-child { border-bottom: none;
+}
+/* ==================== 空状态 ==================== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80rpx 0;
+}
+.empty-state .icon { font-size: 100rpx; margin-bottom: 20rpx; opacity: 0.5;
+}
+.empty-state .text { font-size: 28rpx; color: #999999;
+}
+/* ==================== 间距 ==================== */
+.mt-20 { margin-top: 20rpx;
+}
+.mb-20 { margin-bottom: 20rpx;
+}
+.flex { display: flex;
+}
+.flex-center { display: flex; align-items: center; justify-content: center;
+}
+.flex-between { display: flex; align-items: center; justify-content: space-between;
+}
+/* ==================== 主题选择器样式 ==================== */
+.theme-selector {
+  padding: 24rpx;
+}
+.theme-selector-title {
+  font-size: 28rpx;
+  color: #666666;
+  margin-bottom: 24rpx;
+  text-align: center;
+}
+.theme-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  gap: 24rpx;
+}
+.theme-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20rpx;
+  border-radius: 16rpx;
+  background: #ffffff;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  width: 140rpx;
+}
+.theme-item.active {
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.12);
+  -webkit-transform: scale(1.05);
+          transform: scale(1.05);
+}
+.theme-color-block {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  margin-bottom: 12rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+.theme-name {
+  font-size: 24rpx;
+  color: #333333;
+}
+.theme-item.active .theme-name {
+  font-weight: 600;
+  color: var(--theme-accent, #C47786);
+}
+

@@ -1,0 +1,263 @@
+/* 班级统计页面样式 */
+.container {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding: 20rpx;
+}
+
+/* 班级横幅 */
+.class-banner {
+  padding: 30rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.banner-title {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 8rpx;
+}
+
+.banner-subtitle {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* 概览数据 */
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.overview-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  text-align: center;
+}
+
+.overview-card.highlight {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.overview-card.highlight .overview-value,
+.overview-card.highlight .overview-label {
+  color: #fff;
+}
+
+.overview-value {
+  display: block;
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.overview-label {
+  font-size: 26rpx;
+  color: #999;
+}
+
+/* 区块 */
+.section {
+  margin-bottom: 30rpx;
+}
+
+.section-header {
+  margin-bottom: 16rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+/* 趋势图 */
+.trend-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+}
+
+.trend-chart {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  height: 200rpx;
+  margin-bottom: 20rpx;
+}
+
+.trend-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 60rpx;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.bar-fill {
+  width: 40rpx;
+  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+  border-radius: 8rpx 8rpx 0 0;
+  min-height: 10rpx;
+}
+
+.bar-score {
+  font-size: 22rpx;
+  color: #666;
+  margin-top: 8rpx;
+}
+
+.trend-labels {
+  display: flex;
+  justify-content: space-around;
+}
+
+.label-item {
+  font-size: 24rpx;
+  color: #999;
+  width: 60rpx;
+  text-align: center;
+}
+
+/* 学生列表 */
+.student-list {
+  background: #fff;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+
+.student-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.student-item:last-child {
+  border-bottom: none;
+}
+
+.rank {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  background: #f0f0f0;
+  color: #666;
+  font-size: 24rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16rpx;
+  flex-shrink: 0;
+}
+
+.rank.top {
+  background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
+  color: #fff;
+}
+
+.rank.warning-rank {
+  background: #fff1f0;
+  color: #ff4d4f;
+}
+
+.student-info {
+  flex: 1;
+}
+
+.student-name {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 4rpx;
+}
+
+.student-meta {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.student-score {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #52c41a;
+}
+
+.student-score.warning {
+  color: #ff4d4f;
+}
+
+/* 作业列表 */
+.homework-list {
+  background: #fff;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+
+.homework-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.homework-item:last-child {
+  border-bottom: none;
+}
+
+.homework-info {
+  flex: 1;
+  margin-right: 20rpx;
+}
+
+.homework-title {
+  display: block;
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 12rpx;
+}
+
+.homework-progress-bar {
+  height: 8rpx;
+  background: #f0f0f0;
+  border-radius: 4rpx;
+  overflow: hidden;
+}
+
+.homework-progress-bar .progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  border-radius: 4rpx;
+}
+
+.homework-stats {
+  text-align: right;
+}
+
+.submit-rate {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--theme-accent);
+  margin-bottom: 4rpx;
+}
+
+.avg-score {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 自定义 TabBar 占位 */
+.container {
+  /* padding-bottom 已通过 style 属性在 wxml 中处理 */
+}

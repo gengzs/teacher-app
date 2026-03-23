@@ -1,0 +1,222 @@
+/* 教师端首页样式 */
+.container {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding: 20rpx;
+}
+
+.header {
+  margin-bottom: 24rpx;
+}
+
+.welcome {
+  display: flex;
+  flex-direction: column;
+}
+
+.welcome-text {
+  font-size: 44rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.welcome-date {
+  font-size: 28rpx;
+  color: #999;
+  margin-top: 8rpx;
+}
+
+/* 统计数据 */
+.stats-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+}
+
+.stat-card {
+  flex: 1;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 28rpx 16rpx;
+  text-align: center;
+  margin: 0 6rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
+}
+
+.stat-card:first-child {
+  margin-left: 0;
+}
+
+.stat-card:last-child {
+  margin-right: 0;
+}
+
+.stat-num {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: var(--theme-accent);
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 8rpx;
+}
+
+/* 快捷操作 */
+.quick-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+}
+
+.quick-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  margin: 0 8rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
+}
+
+.quick-btn:first-child {
+  margin-left: 0;
+}
+
+.quick-btn:last-child {
+  margin-right: 0;
+}
+
+.quick-btn.primary {
+  background: var(--theme-gradient);
+}
+
+.quick-btn.primary .quick-text {
+  color: var(--theme-accent);
+}
+
+.quick-icon {
+  font-size: 48rpx;
+  margin-bottom: 12rpx;
+}
+
+.quick-text {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+/* 卡片 */
+.card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.card-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.more {
+  font-size: 26rpx;
+  color: var(--theme-accent);
+}
+
+/* 课程列表 */
+.schedule-list {
+  margin-top: 10rpx;
+}
+
+.schedule-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.schedule-item:last-child {
+  border-bottom: none;
+}
+
+.schedule-time-box {
+  width: 140rpx;
+  flex-shrink: 0;
+}
+
+.schedule-time {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.schedule-dot {
+  width: 12rpx;
+  height: 12rpx;
+  background: var(--theme-accent);
+  border-radius: 50%;
+  margin: 0 20rpx;
+  flex-shrink: 0;
+}
+
+.schedule-info {
+  flex: 1;
+}
+
+.schedule-class {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 6rpx;
+}
+
+.schedule-subject {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.schedule-action {
+  font-size: 28rpx;
+  color: var(--theme-accent);
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60rpx 0;
+}
+
+.empty-state .icon {
+  font-size: 80rpx;
+  margin-bottom: 20rpx;
+}
+
+.empty-state .text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* 底部提示 */
+.tab-tip {
+  text-align: center;
+  padding: 30rpx 0;
+}
+
+.tab-tip text {
+  font-size: 24rpx;
+  color: #ccc;
+}

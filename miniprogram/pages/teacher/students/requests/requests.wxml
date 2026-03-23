@@ -1,0 +1,47 @@
+<view class="container">
+  <!-- 班级信息 -->
+  <view class="class-banner">
+    <text class="banner-text">{{className}} 的入班申请</text>
+  </view>
+
+  <!-- 申请列表 -->
+  <view class="request-list" wx:if="{{requests.length > 0}}">
+    <view
+      class="request-item"
+      wx:for="{{requests}}"
+      wx:key="_id"
+    >
+      <view class="request-avatar">{{item.studentName[0]}}</view>
+      <view class="request-info">
+        <text class="request-name">{{item.studentName}}</text>
+        <text class="request-time">申请时间：{{formatTime(item.createTime)}}</text>
+      </view>
+      <view class="request-actions">
+        <view
+          class="action-btn reject"
+          bindtap="rejectRequest"
+          data-id="{{item._id}}"
+          data-name="{{item.studentName}}"
+        >拒绝</view>
+        <view
+          class="action-btn approve"
+          bindtap="approveRequest"
+          data-id="{{item._id}}"
+          data-name="{{item.studentName}}"
+        >同意</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{!loading && requests.length === 0}}">
+    <text class="icon">📋</text>
+    <text class="text">{{emptyText}}</text>
+    <view class="tip-text">学生通过邀请码申请加入后，会显示在这里</view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-state" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+</view>
