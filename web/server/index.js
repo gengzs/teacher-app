@@ -28,7 +28,7 @@ const PORT = Number(process.env.PORT) || 3010;
 // API 基础地址
 const TCB_API_BASE = 'https://api.weixin.qq.com/tcb';
 
-// access_token 缓存
+// access_token 缓存（getStableAccessToken 有效期 30 天）
 let accessTokenCache = { token: null, expiresAt: 0 };
 
 /** 拼接到微信 URL 的 access_token（避免特殊字符被截断） */
@@ -81,6 +81,7 @@ app.use(express.json());
 // ============================================================
 
 async function getAccessToken() {
+  // getStableAccessToken 有效期约 30 天，缓存足够长
   if (accessTokenCache.token && Date.now() < accessTokenCache.expiresAt) {
     return accessTokenCache.token;
   }
@@ -89,22 +90,26 @@ async function getAccessToken() {
     throw Object.assign(new Error('缺少微信配置，请检查 .env 里的 WECHAT_APPID 和 WECHAT_SECRET'), { code: 'NO_CREDENTIALS' });
   }
 
-  const url = `https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${encodeURIComponent(WECHAT_APPID)}&secret=${encodeURIComponent(WECHAT_SECRET)}`;
-  const res = await axios.get(url, { timeout: 10000 });
+  // 第一步：获取 stable_access_token（长期有效）
+  const stableUrl = `https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${encodeURIComponent(WECHAT_APPID)}&secret=${encodeURIComponent(WECHAT_SECRET)}&type=1`;
+  const stableRes = await axios.get(stableUrl, { timeout: 10000 });
 
-  if (tcbFailed(res.data)) {
-    const err = new Error(`微信 access_token 错误: ${res.data.errmsg}`);
-    err.code = res.data.errcode;
+  if (tcbFailed(stableRes.data)) {
+    const err = new Error(`微信 stable_access_token 错误: ${stableRes.data.errmsg}`);
+    err.code = stableRes.data.errcode;
     throw err;
   }
 
-  if (!res.data.access_token) {
-    throw new Error('微信未返回 access_token');
+  if (!stableRes.data.access_token) {
+    throw new Error('微信未返回 stable_access_token');
   }
 
-  accessTokenCache.token = res.data.access_token;
-  accessTokenCache.expiresAt = Date.now() + (res.data.expires_in - 200) * 1000;
-  console.log('[Token] 刷新成功，有效期', res.data.expires_in, '秒');
+  // 缓存 30 天（微信实际有效期更长，但保守起见）
+  const TTL_MS = 30 * 24 * 60 * 60 * 1000;
+  accessTokenCache.token = stableRes.data.access_token;
+  accessTokenCache.expiresAt = Date.now() + TTL_MS;
+  console.log('[Token] 刷新成功（getStableAccessToken），有效期 30 天');
+
   return accessTokenCache.token;
 }
 
@@ -177,7 +182,7 @@ app.get('/api/health', async (req, res) => {
   try {
     await getAccessToken();
     info.mode = 'REAL';
-    info.message = '已连接微信云开发数据库（真实数据）';
+    info.message = '已连接微信云开发数据库（stable_access_token 长期有效）';
   } catch (err) {
     info.mode = 'API_ERROR';
     info.error = err.message;
@@ -587,7 +592,7 @@ accessTokenCache.expiresAt = 0;
 app.listen(PORT, async () => {
   try {
     await getAccessToken();
-    console.log('[Server] Token 获取成功');
+    console.log('[Server] Token 获取成功（长期有效）');
   } catch (err) {
     console.log('[Server] Token 获取失败:', err.message);
   }
