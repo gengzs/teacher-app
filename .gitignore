@@ -21,7 +21,7 @@ Thumbs.db
 *.swp
 *.swo
 
-# Railway 配置（不用上传）
+# Railway 配置
 railway.sh
 railway.toml
 nixpacks.toml

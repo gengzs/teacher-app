@@ -25,14 +25,6 @@ const IS_PROD = NODE_ENV === 'production';
 const app = express();
 const PORT = Number(process.env.PORT) || 3010;
 
-// 生产环境：托管前端静态文件 + 解决 SPA 路由（所有路径都返回 index.html）
-if (IS_PROD) {
-  app.use(express.static(FRONTEND_DIST));
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(FRONTEND_DIST, 'index.html'));
-  });
-}
-
 // API 基础地址
 const TCB_API_BASE = 'https://api.weixin.qq.com/tcb';
 
@@ -576,6 +568,14 @@ app.delete('/api/notes/:id', async (req, res) => {
     res.status(500).json({ code: -1, source: 'error', error: err.message });
   }
 });
+
+// 生产环境：必须在所有 /api 路由之后注册，否则会拦截 API 请求
+if (IS_PROD) {
+  app.use(express.static(FRONTEND_DIST));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(FRONTEND_DIST, 'index.html'));
+  });
+}
 
 // ============================================================
 // 启动

@@ -1,7 +1,0 @@
-[railway]
-  builder = "nixpacks"
-
-[nixpacks]
-  nodeVersion = "18"
-  buildCommand = "cd web/frontend && npm install && npm run build && cd ../server && npm install --production"
-  startCommand = "cd web/server && NODE_ENV=production node index.js"

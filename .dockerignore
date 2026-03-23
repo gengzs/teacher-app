@@ -1,0 +1,10 @@
+.git
+**/node_modules
+web/frontend/dist
+teacher-app
+miniprogram
+cloudfunctions
+scripts
+*.log
+test-*.js
+web/server/test-*.js
