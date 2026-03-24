@@ -105,12 +105,15 @@
 
 <script>
 const UNKNOWN_WORDS_KEY = 'teacher_unknown_words';
+const STUDENT_INFO_KEY = 'teacher_student_info';
 const GROUP_SIZE = 5;
 
 export default {
   data() {
     return {
       setName: '',
+      studentId: '',
+      studentName: '',
       totalCount: 0,
       totalGroups: 0,
       currentGroupIndex: 0,
@@ -128,6 +131,25 @@ export default {
 
   onLoad(options) {
     const setName = options.setName ? decodeURIComponent(options.setName) : '';
+    this.setName = setName;
+
+    // 接收学生信息
+    if (options.studentId) {
+      this.studentId = options.studentId;
+      this.studentName = options.studentName ? decodeURIComponent(options.studentName) : '';
+      try {
+        uni.setStorageSync(STUDENT_INFO_KEY, {
+          studentId: this.studentId,
+          studentName: this.studentName
+        });
+      } catch (e) {}
+    } else {
+      try {
+        const info = uni.getStorageSync(STUDENT_INFO_KEY) || {};
+        this.studentId = info.studentId || '';
+        this.studentName = info.studentName || '';
+      } catch (e) {}
+    }
 
     let allWords = [];
     try {
@@ -144,7 +166,6 @@ export default {
 
     const totalGroups = Math.ceil(allWords.length / GROUP_SIZE);
 
-    this.setName = setName;
     this.totalCount = allWords.length;
     this.totalGroups = totalGroups;
     this._allWords = allWords;
@@ -241,10 +262,16 @@ export default {
         this._renderGroup(this.currentGroupIndex + 1);
       } else {
         uni.showToast({ title: '学习完成，即将开始检测', icon: 'none' });
+
+        // 构建跳转URL，传递学生信息
+        let url = `/pages/teacher/recite/groupTest/groupTest?setName=${encodeURIComponent(this.setName)}`;
+
+        if (this.studentId) {
+          url += `&studentId=${this.studentId}&studentName=${encodeURIComponent(this.studentName)}`;
+        }
+
         setTimeout(() => {
-          uni.navigateTo({
-            url: `/pages/teacher/recite/groupTest/groupTest?setName=${encodeURIComponent(this.setName)}`,
-          });
+          uni.navigateTo({ url });
         }, 1200);
       }
     },

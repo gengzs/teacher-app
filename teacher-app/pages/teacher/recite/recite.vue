@@ -157,6 +157,16 @@ export default {
     const setId = options.setId || '';
     const setName = options.setName ? decodeURIComponent(options.setName) : '';
 
+    // 保存学生信息到本地，供学习时使用
+    if (options.studentId) {
+      try {
+        uni.setStorageSync('teacher_student_info', {
+          studentId: options.studentId,
+          studentName: options.studentName ? decodeURIComponent(options.studentName) : ''
+        });
+      } catch (e) {}
+    }
+
     this.setId = setId;
     this.setName = setName;
 
@@ -289,9 +299,20 @@ export default {
         console.warn('save unknown words', e);
       }
 
-      uni.navigateTo({
-        url: `/pages/teacher/recite/groupLearn/groupLearn?count=${unknownWords.length}&setName=${encodeURIComponent(this.setName)}`,
-      });
+      // 获取学生信息
+      let studentInfo = null;
+      try {
+        studentInfo = uni.getStorageSync('teacher_student_info') || null;
+      } catch (e) {}
+
+      // 构建跳转URL，传递学生信息
+      let url = `/pages/teacher/recite/groupLearn/groupLearn?count=${unknownWords.length}&setName=${encodeURIComponent(this.setName)}`;
+
+      if (studentInfo && studentInfo.studentId) {
+        url += `&studentId=${studentInfo.studentId}&studentName=${encodeURIComponent(studentInfo.studentName || '')}`;
+      }
+
+      uni.navigateTo({ url });
     },
 
     // ========== 显示结果 ==========

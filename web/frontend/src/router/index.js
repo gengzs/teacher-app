@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 
 const routes = [
   {
@@ -41,6 +41,26 @@ const routes = [
         component: () => import('../views/Students.vue')
       },
       {
+        path: 'student/:id',
+        name: 'StudentDetail',
+        component: () => import('../views/StudentDetail.vue')
+      },
+      {
+        path: 'recite/learn',
+        name: 'StudentReciteLearn',
+        component: () => import('../views/StudentReciteLearn.vue')
+      },
+      {
+        path: 'recite/test',
+        name: 'StudentReciteTest',
+        component: () => import('../views/StudentReciteTest.vue')
+      },
+      {
+        path: 'recite',
+        name: 'StudentRecite',
+        component: () => import('../views/StudentRecite.vue')
+      },
+      {
         path: 'notes',
         name: 'Notes',
         component: () => import('../views/Notes.vue')
@@ -65,7 +85,8 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  // Hash 模式：Electron file:// 与静态部署均可用；URL 形如 #/students
+  history: createWebHashHistory(),
   routes
 })
 

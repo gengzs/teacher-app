@@ -93,7 +93,8 @@ onMounted(() => {
 
 <style scoped>
 .profile-page {
-  max-width: 700px;
+  width: 100%;
+  max-width: 1100px;
 }
 
 .profile-header {

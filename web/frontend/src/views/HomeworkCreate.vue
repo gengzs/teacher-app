@@ -98,7 +98,8 @@ onMounted(async () => {
 
 <style scoped>
 .homework-create-page {
-  max-width: 700px;
+  width: 100%;
+  max-width: 1100px;
 }
 
 .page-header {

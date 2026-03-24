@@ -118,6 +118,7 @@ onMounted(() => {
 
 <style scoped>
 .class-page {
+  width: 100%;
   max-width: 1100px;
 }
 

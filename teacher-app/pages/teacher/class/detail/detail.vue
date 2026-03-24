@@ -29,7 +29,8 @@
           <text class="module-arrow">›</text>
         </view>
         <view class="members-actions">
-          <view class="member-btn" @click.stop="goToStudents">
+          <view class="member-btn primary" @click.stop="showAddStudentModal">
+            <view class="btn-icon">+</view>
             <text>添加学生</text>
           </view>
           <view class="member-btn" @click.stop="goToJoinRequests">
@@ -131,74 +132,101 @@
     </view>
 
     <!-- 手动添加学生弹窗 -->
-    <view class="modal" :class="{ show: showAddModal }">
-      <view class="modal-header">
-        <text class="modal-title">添加学生</text>
-        <view class="modal-close" @click="hideAddModal">✕</view>
-      </view>
-
+    <view class="modal-overlay" v-if="showAddModal" @click="hideAddModal"></view>
+    <view class="add-modal" :class="{ show: showAddModal }">
       <!-- 输入表单 -->
-      <view class="modal-body" v-if="!newStudentResult">
-        <view class="form-item">
-          <text class="form-label">学生姓名 *</text>
-          <input
-            class="form-input"
-            placeholder="请输入学生姓名"
-            v-model="addName"
-          />
+      <view class="modal-view" v-if="!newStudentResult">
+        <view class="modal-header">
+          <view class="header-icon">🎓</view>
+          <text class="header-title">添加学生</text>
+          <view class="close-btn" @click="hideAddModal">✕</view>
         </view>
-        <view class="form-item">
-          <text class="form-label">手机号（可选）</text>
-          <input
-            class="form-input"
-            type="number"
-            placeholder="用于账号绑定"
-            v-model="addPhone"
-          />
+
+        <view class="modal-body">
+          <view class="input-group">
+            <view class="input-label">
+              <text class="label-icon">👤</text>
+              <text>学生姓名</text>
+            </view>
+            <input
+              class="modal-input"
+              placeholder="请输入学生姓名"
+              placeholder-class="placeholder"
+              v-model="addName"
+              maxlength="20"
+            />
+          </view>
+
+          <view class="input-group">
+            <view class="input-label">
+              <text class="label-icon">📱</text>
+              <text>手机号</text>
+              <text class="optional">（选填）</text>
+            </view>
+            <input
+              class="modal-input"
+              type="number"
+              placeholder="用于绑定微信账号"
+              placeholder-class="placeholder"
+              v-model="addPhone"
+              maxlength="11"
+            />
+          </view>
+
+          <view class="tips-box">
+            <text class="tips-icon">💡</text>
+            <text class="tips-text">添加成功后系统将生成临时账号，可发送给家长绑定微信</text>
+          </view>
         </view>
-        <view class="form-hint">
-          <text class="hint-icon">💡</text>
-          <text class="hint-text">添加后系统会生成临时账号密码，请妥善保存</text>
-        </view>
+
         <view class="modal-footer">
           <view class="btn-cancel" @click="hideAddModal">取消</view>
-          <view class="btn-confirm" :class="{ loading: addLoading }" @click="submitAddStudent">
-            {{addLoading ? '添加中...' : '确认添加'}}
+          <view class="btn-confirm" :class="{ disabled: !addName.trim() }" @click="submitAddStudent">
+            <text v-if="!addLoading">确认添加</text>
+            <text v-else class="loading-text">添加中...</text>
           </view>
         </view>
       </view>
 
       <!-- 添加成功结果 -->
-      <view class="modal-body result-body" v-if="newStudentResult">
-        <view class="result-icon">✅</view>
-        <view class="result-title">添加成功</view>
-        <view class="result-info">
-          <view class="info-row">
-            <text class="info-label">姓名</text>
-            <text class="info-value">{{newStudentResult.name}}</text>
+      <view class="modal-view result-view" v-if="newStudentResult">
+        <view class="result-header">
+          <view class="result-check">✓</view>
+          <text class="result-title">添加成功</text>
+        </view>
+
+        <view class="result-body">
+          <view class="result-card">
+            <view class="result-item">
+              <text class="result-label">学生姓名</text>
+              <text class="result-value">{{newStudentResult.name}}</text>
+            </view>
+            <view class="result-item" v-if="newStudentResult.phone">
+              <text class="result-label">手机号码</text>
+              <text class="result-value">{{newStudentResult.phone}}</text>
+            </view>
+            <view class="result-item">
+              <text class="result-label">初始密码</text>
+              <text class="result-value highlight">{{newStudentResult.tempPassword}}</text>
+            </view>
           </view>
-          <view class="info-row" v-if="newStudentResult.phone">
-            <text class="info-label">手机</text>
-            <text class="info-value">{{newStudentResult.phone}}</text>
-          </view>
-          <view class="info-row">
-            <text class="info-label">初始密码</text>
-            <text class="info-value highlight">{{newStudentResult.tempPassword}}</text>
+
+          <view class="warning-box">
+            <text class="warning-icon">⚠️</text>
+            <text class="warning-text">请将此账号信息发给家长或学生</text>
           </view>
         </view>
-        <view class="result-tip">
-          <text class="tip-icon">⚠️</text>
-          <text class="tip-text">请将此账号信息发给家长或学生</text>
-        </view>
+
         <view class="modal-footer">
-          <view class="btn-secondary" @click="copyAccountInfo">复制账号信息</view>
-          <view class="btn-confirm" @click="continueAdd">继续添加</view>
+          <view class="btn-secondary" @click="copyAccountInfo">
+            <text>复制信息</text>
+          </view>
+          <view class="btn-confirm" @click="continueAdd">
+            <text>继续添加</text>
+          </view>
         </view>
       </view>
     </view>
-
-    <!-- 遮罩层 -->
-    <view class="modal-overlay" v-if="showAddModal" @click="hideAddModal"></view>
   </view>
 </template>
 
@@ -608,19 +636,6 @@ export default {
   border-top: 1rpx solid #f0f0f0;
 }
 
-.member-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16rpx;
-  background: var(--theme-light);
-  border-radius: 12rpx;
-  font-size: 26rpx;
-  color: var(--theme-accent);
-  position: relative;
-}
-
 .member-badge {
   position: absolute;
   top: -8rpx;
@@ -776,24 +791,7 @@ export default {
   color: #999;
 }
 
-/* 弹窗样式 */
-.modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  width: 80%;
-  max-width: 600rpx;
-  background: #fff;
-  border-radius: 24rpx;
-  z-index: 1001;
-  transition: transform 0.3s ease;
-}
-
-.modal.show {
-  transform: translate(-50%, -50%) scale(1);
-}
-
+/* ========== 添加学生弹窗 ========== */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -801,176 +799,329 @@ export default {
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.modal-overlay.show {
+  opacity: 1;
+}
+
+.add-modal {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #fff;
+  border-radius: 32rpx 32rpx 0 0;
   z-index: 1000;
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.add-modal.show {
+  transform: translateY(0);
+}
+
+.modal-view {
+  padding: 0 40rpx 40rpx;
 }
 
 .modal-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 30rpx;
+  padding: 40rpx 0 32rpx;
   border-bottom: 1rpx solid #f0f0f0;
 }
 
-.modal-title {
-  font-size: 32rpx;
+.header-icon {
+  font-size: 40rpx;
+  margin-right: 16rpx;
+}
+
+.header-title {
+  flex: 1;
+  font-size: 34rpx;
   font-weight: 600;
   color: #333;
 }
 
-.modal-close {
-  font-size: 40rpx;
-  color: #ccc;
-  padding: 10rpx;
+.close-btn {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  color: #999;
+  background: #f5f5f5;
+  border-radius: 50%;
 }
 
 .modal-body {
-  padding: 30rpx;
+  padding: 32rpx 0;
 }
 
-.form-item {
-  margin-bottom: 24rpx;
+.input-group {
+  margin-bottom: 32rpx;
 }
 
-.form-label {
-  display: block;
-  font-size: 28rpx;
-  color: #333;
-  margin-bottom: 12rpx;
-}
-
-.form-input {
-  width: 100%;
-  padding: 20rpx;
-  border: 2rpx solid #e5e5e5;
-  border-radius: 12rpx;
-  font-size: 28rpx;
-  box-sizing: border-box;
-}
-
-.form-hint {
+.input-label {
   display: flex;
-  align-items: flex-start;
-  background: #FFF9E6;
-  padding: 16rpx;
-  border-radius: 12rpx;
-  margin-bottom: 24rpx;
+  align-items: center;
+  margin-bottom: 16rpx;
 }
 
-.hint-icon {
-  margin-right: 12rpx;
-}
-
-.hint-text {
-  font-size: 24rpx;
-  color: #8B5A00;
-  flex: 1;
-}
-
-.modal-footer {
-  display: flex;
-  gap: 16rpx;
-}
-
-.btn-cancel {
-  flex: 1;
-  text-align: center;
-  padding: 24rpx;
-  background: #f5f5f5;
-  border-radius: 24rpx;
+.label-icon {
   font-size: 28rpx;
-  color: #666;
+  margin-right: 8rpx;
 }
 
-.btn-confirm {
-  flex: 1;
-  text-align: center;
-  padding: 24rpx;
-  background: var(--theme-gradient);
-  border-radius: 24rpx;
+.input-label text {
   font-size: 28rpx;
-  color: #fff;
-}
-
-.btn-confirm.loading {
-  opacity: 0.7;
-}
-
-.btn-secondary {
-  flex: 1;
-  text-align: center;
-  padding: 24rpx;
-  background: var(--theme-light);
-  border-radius: 24rpx;
-  font-size: 28rpx;
-  color: var(--theme-accent);
-}
-
-.result-body {
-  text-align: center;
-}
-
-.result-icon {
-  font-size: 80rpx;
-  margin-bottom: 20rpx;
-}
-
-.result-title {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 24rpx;
-}
-
-.result-info {
-  background: #f9f9f9;
-  border-radius: 12rpx;
-  padding: 20rpx;
-  margin-bottom: 20rpx;
-  text-align: left;
-}
-
-.info-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 12rpx 0;
-  border-bottom: 1rpx solid #eee;
-}
-
-.info-row:last-child {
-  border-bottom: none;
-}
-
-.info-label {
-  font-size: 26rpx;
-  color: #666;
-}
-
-.info-value {
-  font-size: 26rpx;
   color: #333;
   font-weight: 500;
 }
 
-.info-value.highlight {
-  color: var(--theme-accent);
-  font-weight: 700;
+.optional {
+  font-size: 24rpx !important;
+  color: #999 !important;
+  font-weight: 400 !important;
+  margin-left: 8rpx;
 }
 
-.result-tip {
+.modal-input {
+  width: 100%;
+  height: 88rpx;
+  padding: 0 24rpx;
+  background: #f8f8f8;
+  border-radius: 16rpx;
+  font-size: 30rpx;
+  color: #333;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.modal-input:focus {
+  background: #fff;
+  box-shadow: 0 0 0 2rpx var(--theme-accent);
+}
+
+.placeholder {
+  color: #ccc;
+}
+
+.tips-box {
+  display: flex;
+  align-items: flex-start;
+  padding: 20rpx 24rpx;
+  background: linear-gradient(135deg, #FFF9E6 0%, #FFF3D6 100%);
+  border-radius: 12rpx;
+  margin-top: 8rpx;
+}
+
+.tips-icon {
+  font-size: 28rpx;
+  margin-right: 12rpx;
+}
+
+.tips-text {
+  flex: 1;
+  font-size: 24rpx;
+  color: #8B6914;
+  line-height: 1.5;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 24rpx;
+  padding-top: 16rpx;
+}
+
+.btn-cancel {
+  flex: 1;
+  height: 96rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  border-radius: 48rpx;
+  font-size: 30rpx;
+  color: #666;
+}
+
+.btn-confirm {
+  flex: 2;
+  height: 96rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--theme-gradient);
+  border-radius: 48rpx;
+  font-size: 30rpx;
+  color: #fff;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-confirm.disabled {
+  opacity: 0.5;
+}
+
+.btn-confirm:active {
+  transform: scale(0.98);
+}
+
+.loading-text {
+  opacity: 0.8;
+}
+
+/* ========== 结果视图 ========== */
+.result-view {
+  padding-top: 0;
+}
+
+.result-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48rpx 0 32rpx;
+}
+
+.result-check {
+  width: 100rpx;
+  height: 100rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 48rpx;
+  font-weight: bold;
+  margin-bottom: 20rpx;
+}
+
+.result-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.result-body {
+  padding: 0 0 32rpx;
+}
+
+.result-card {
+  background: linear-gradient(135deg, #f8f9fa 0%, #f0f2f5 100%);
+  border-radius: 20rpx;
+  padding: 28rpx;
+  margin-bottom: 24rpx;
+}
+
+.result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #e8e8e8;
+}
+
+.result-item:last-child {
+  border-bottom: none;
+}
+
+.result-label {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.result-value {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.result-value.highlight {
+  color: var(--theme-accent);
+  font-weight: 700;
+  font-size: 32rpx;
+}
+
+.warning-box {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8rpx;
-  margin-bottom: 24rpx;
+  padding: 20rpx;
+  background: #FFF0F0;
+  border-radius: 12rpx;
 }
 
-.tip-icon {
-  font-size: 28rpx;
+.warning-icon {
+  font-size: 26rpx;
 }
 
-.tip-text {
+.warning-text {
   font-size: 24rpx;
-  color: #FF6B6B;
+  color: #E53935;
+}
+
+.btn-secondary {
+  flex: 1;
+  height: 96rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--theme-light);
+  border-radius: 48rpx;
+  font-size: 30rpx;
+  color: var(--theme-accent);
+  font-weight: 500;
+}
+
+/* ========== 按钮图标（添加学生按钮） ========== */
+.member-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16rpx;
+  background: var(--theme-light);
+  border-radius: 12rpx;
+  font-size: 26rpx;
+  color: var(--theme-accent);
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.member-btn:active {
+  transform: scale(0.96);
+}
+
+.member-btn.primary {
+  background: var(--theme-gradient);
+  color: #fff;
+}
+
+.btn-icon {
+  width: 36rpx;
+  height: 36rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  color: var(--theme-accent);
+  font-size: 32rpx;
+  font-weight: bold;
+  margin-right: 10rpx;
+}
+
+.member-btn.primary .btn-icon {
+  background: rgba(255, 255, 255, 0.3);
+  color: #fff;
 }
 </style>

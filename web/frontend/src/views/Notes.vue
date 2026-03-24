@@ -192,7 +192,8 @@ onMounted(() => {
 
 <style scoped>
 .notes-page {
-  max-width: 1000px;
+  width: 100%;
+  max-width: 1100px;
 }
 
 /* 头部 */

@@ -3,6 +3,9 @@ node_modules/
 
 # 构建产物
 web/frontend/dist/
+web/frontend/release/
+web/frontend/dist-electron/
+web/frontend/electron-out-test/
 
 # 环境变量（不要上传微信密钥！）
 .env

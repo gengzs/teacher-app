@@ -51,8 +51,12 @@
           <div class="action-icon">👨‍🎓</div>
           <div class="action-text">学生管理</div>
         </button>
-        <button class="action-card" @click="goTo('/notes')">
+        <button class="action-card" @click="goTo('/recite')">
           <div class="action-icon">📖</div>
+          <div class="action-text">背单词</div>
+        </button>
+        <button class="action-card" @click="goTo('/notes')">
+          <div class="action-icon">📚</div>
           <div class="action-text">笔记库</div>
         </button>
         <button class="action-card" @click="goTo('/profile')">
@@ -216,6 +220,7 @@ onMounted(() => {
 
 <style scoped>
 .home-page {
+  width: 100%;
   max-width: 1100px;
 }
 

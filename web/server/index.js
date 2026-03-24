@@ -5,7 +5,13 @@
  */
 
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '.env') });
+const fs = require('fs');
+
+const _embeddedEnvPath = process.env.TEACHER_SERVER_ENV_PATH;
+const _localEnvPath = path.join(__dirname, '.env');
+const _dotenvPath =
+  _embeddedEnvPath && fs.existsSync(_embeddedEnvPath) ? _embeddedEnvPath : _localEnvPath;
+require('dotenv').config({ path: _dotenvPath });
 
 const express = require('express');
 const cors = require('cors');
@@ -19,8 +25,10 @@ const WECHAT_SECRET = process.env.WECHAT_SECRET;
 
 // 前后端分离部署配置（开发环境：前端 dev server 代理；生产环境：自己托管静态文件）
 const NODE_ENV = process.env.NODE_ENV || 'development';
-const FRONTEND_DIST = path.join(__dirname, '../frontend/dist');
+const FRONTEND_DIST =
+  process.env.TEACHER_FRONTEND_DIST || path.join(__dirname, '../frontend/dist');
 const IS_PROD = NODE_ENV === 'production';
+const TEACHER_ELECTRON = process.env.TEACHER_ELECTRON === '1';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3010;
@@ -40,6 +48,17 @@ function tcbUrl(apiPath, token) {
 function tcbFailed(resData) {
   if (!resData || resData.errcode == null) return false;
   return Number(resData.errcode) !== 0;
+}
+
+/** 微信 invokecloudfunction 要求 req_data 为 JSON 字符串，传对象会触发 INVALID_PARAM（如 function name format invalid） */
+function tcbInvokeReqData(data) {
+  if (data == null || data === '') return '{}';
+  if (typeof data === 'string') return data;
+  try {
+    return JSON.stringify(data);
+  } catch {
+    return '{}';
+  }
 }
 
 /**
@@ -292,13 +311,198 @@ app.get('/api/homework', async (req, res) => {
 });
 
 /**
+ * 获取学生详情（含统计数据） GET /api/students/:id/stats
+ */
+app.get('/api/students/:id/stats', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const student = await dbQuery(
+      `db.collection('students').where({_id:'${id}'}).limit(1).get()`
+    );
+    if (!student || student.length === 0) {
+      return res.status(404).json({ code: -1, error: '学生不存在' });
+    }
+    const s = student[0];
+    // 查询该学生的单词笔记，统计掌握情况
+    const notes = await dbQuery(
+      `db.collection('wordNotes').where({studentId:'${id}'}).get()`
+    );
+    const totalWords = notes.length;
+    const masteredWords = notes.filter(n => n.status === 'mastered').length;
+    const learningWords = notes.filter(n => n.status === 'learning').length;
+    const notStartedWords = 0;
+    // 待复习：距上次复习超过1天的
+    const oneDayAgo = Date.now() - 86400000;
+    const reviewCount = notes.filter(n => {
+      const lastReview = n.lastReviewTime || n.createdAt || 0;
+      return lastReview < oneDayAgo;
+    }).length;
+    res.json({
+      code: 0,
+      data: {
+        _id: s._id,
+        name: s.name,
+        className: s.className || '',
+        classId: s.classId || '',
+        totalWords,
+        masteredWords,
+        learningWords,
+        notStartedWords,
+        reviewCount,
+        learnDays: s.learnDays || 0,
+        masterRate: totalWords > 0 ? Math.round((masteredWords / totalWords) * 100) : 0
+      }
+    });
+  } catch (err) {
+    console.error('❌ /api/students/:id/stats 错误:', err.message);
+    res.status(500).json({ code: -1, error: err.message });
+  }
+});
+
+/**
  * 获取学生列表 GET /api/students
  * students 集合目前无 classId 关联，学生归属需通过小程序「邀请码→审批」流程建立
  * 暂返回空列表，等流程完善后再接入
  */
 app.get('/api/students', async (req, res) => {
-  // 先返回空，等 classId 关联建立后再启用
-  res.json({ code: 0, source: 'pending', data: [], note: '学生列表需小程序完成邀请码审批流程后才可用' });
+  try {
+    const students = await dbQuery(`db.collection('students').limit(1000).get()`);
+    // 补全 joinSource 字段（默认为 manual）
+    const data = (students || []).map(s => ({ ...s, joinSource: s.joinSource || 'manual', status: s.status || 'active' }));
+    res.json({ code: 0, data });
+  } catch (err) {
+    console.error('获取学生列表失败:', err);
+    res.status(500).json({ code: -1, error: '获取学生列表失败' });
+  }
+});
+
+/**
+ * 词库列表 GET /api/word-sets（直连数据库，避免 HTTP 调云函数对 req_data 格式限制）
+ */
+app.get('/api/word-sets', async (req, res) => {
+  try {
+    const list = await dbQuery(
+      `db.collection('wordSets').orderBy('createdAt', 'desc').limit(200).get()`
+    );
+    res.json({ code: 0, source: 'wechat_db', data: list });
+  } catch (err) {
+    console.error('❌ /api/word-sets 错误:', err.message);
+    res.status(500).json({ code: -1, source: 'error', error: err.message });
+  }
+});
+
+/**
+ * 某词库下的单词 GET /api/word-sets/:id/words
+ * 微信云数据库单次 .limit() 上限为 100（再大报 MgoLimit 校验失败）
+ * 用多路并发 skip 拉取，比原先串行 100 条一轮快很多
+ */
+app.get('/api/word-sets/:id/words', async (req, res) => {
+  const setId = req.params.id || '';
+  if (!/^[a-zA-Z0-9_-]+$/.test(setId)) {
+    return res.status(400).json({ code: -1, source: 'error', error: '无效的词库 ID' });
+  }
+
+  try {
+    const sets = await dbQuery(`db.collection('wordSets').doc('${setId}').get()`);
+    if (!sets.length) {
+      return res.status(404).json({ code: -1, source: 'error', error: '词库不存在' });
+    }
+
+    const PAGE = 100;
+    const CONCURRENCY = 10;
+    const allWords = [];
+    let baseSkip = 0;
+
+    for (;;) {
+      const offsets = Array.from({ length: CONCURRENCY }, (_, i) => baseSkip + i * PAGE);
+      const batches = await Promise.all(
+        offsets.map((sk) =>
+          dbQuery(
+            `db.collection('words').where({setId:'${setId}'}).orderBy('index', 'asc').skip(${sk}).limit(${PAGE}).get()`
+          )
+        )
+      );
+
+      let done = false;
+      for (const batch of batches) {
+        allWords.push(...batch);
+        if (batch.length < PAGE) {
+          done = true;
+          break;
+        }
+      }
+      if (done) break;
+      baseSkip += CONCURRENCY * PAGE;
+    }
+
+    res.json({ code: 0, source: 'wechat_db', data: allWords });
+  } catch (err) {
+    console.error('❌ /api/word-sets/:id/words 错误:', err.message);
+    res.status(500).json({ code: -1, source: 'error', error: err.message });
+  }
+});
+
+/**
+ * 获取某学生的单词笔记列表 GET /api/word-notes?studentId=xxx
+ */
+app.get('/api/word-notes', async (req, res) => {
+  const { studentId } = req.query || {};
+  if (!studentId) {
+    return res.status(400).json({ code: -1, source: 'error', error: '缺少 studentId 参数' });
+  }
+  try {
+    const notes = await dbQuery(
+      `db.collection('wordNotes').where({studentId:'${studentId}'}).get()`
+    );
+    res.json({ code: 0, source: 'wechat_db', data: notes });
+  } catch (err) {
+    console.error('❌ /api/word-notes 错误:', err.message);
+    res.status(500).json({ code: -1, source: 'error', error: err.message });
+  }
+});
+
+/**
+ * 保存/更新单词笔记 POST /api/word-notes
+ */
+app.post('/api/word-notes', async (req, res) => {
+  const { studentId, wordId, word, note } = req.body || {};
+  if (!studentId || !wordId) {
+    return res.status(400).json({ code: -1, source: 'error', error: '缺少 studentId 或 wordId' });
+  }
+  try {
+    const existing = await dbQuery(
+      `db.collection('wordNotes').where({studentId:'${studentId}',wordId:'${wordId}'}).limit(1).get()`
+    );
+    if (existing.length > 0) {
+      const docId = existing[0]._id;
+      await dbQueryEncoded('/databaseupdate', `
+        db.collection('wordNotes').doc('${docId}').update({
+          data: {
+            note: ${tcbSqUnicode(String(note ?? ''))},
+            updateTime: ${Date.now()}
+          }
+        })`
+      );
+      res.json({ code: 0, source: 'wechat_db', data: { _id: docId, note } });
+    } else {
+      const r = await dbQueryEncoded('/databaseadd', `
+        db.collection('wordNotes').add({
+          data: {
+            studentId: ${tcbSqUnicode(studentId)},
+            wordId: ${tcbSqUnicode(wordId)},
+            word: ${tcbSqUnicode(String(word || ''))},
+            note: ${tcbSqUnicode(String(note ?? ''))},
+            createTime: ${Date.now()},
+            updateTime: ${Date.now()}
+          }
+        })`
+      );
+      res.json({ code: 0, source: 'wechat_db', data: { _id: r.id, note } });
+    }
+  } catch (err) {
+    console.error('❌ /api/word-notes POST 错误:', err.message);
+    res.status(500).json({ code: -1, source: 'error', error: err.message });
+  }
 });
 
 /**
@@ -318,7 +522,7 @@ app.post('/api/call-function', async (req, res) => {
     const res2 = await axios.post(url, {
       env: WECHAT_ENV_ID,
       name: name,
-      req_data: data || {}
+      req_data: tcbInvokeReqData(data)
     }, { timeout: 15000 });
 
     if (tcbFailed(res2.data)) {
@@ -333,6 +537,316 @@ app.post('/api/call-function', async (req, res) => {
     }
     res.json({ code: 0, source: 'wechat', data: result });
   } catch (err) {
+    res.status(500).json({ code: -1, source: 'error', error: err.message });
+  }
+});
+
+/**
+ * 生成真实测试数据 POST /api/seed
+ * 调用后向微信云数据库写入词库、单词、班级、学生记录
+ */
+app.post('/api/seed', async (req, res) => {
+  async function addDoc(collection, data) {
+    const payload = { env: WECHAT_ENV_ID, query: `db.collection('${collection}').add({data: ${JSON.stringify(data)}})` };
+    const r = await axios.post(tcbUrl('/databaseadd', await getAccessToken()), payload, { timeout: 15000 });
+    if (tcbFailed(r.data)) throw new Error(`${collection} 添加失败: ${r.data.errmsg}`);
+    return r.data.id_list?.[0] || r.data._id;
+  }
+
+  try {
+    const now = Date.now();
+
+    // ── 1. 词库 1：人教版七上核心词 ───────────────────────────────
+    const ws1Id = await addDoc('wordSets', {
+      name: '人教版七年级上册',
+      description: '人教版英语七年级上册核心词汇',
+      wordCount: 0,
+      createdAt: now,
+      updateTime: now
+    });
+
+    const unit1Words = [
+      { word: 'good morning', phonetic: '/ɡʊd ˈmɔːnɪŋ/', translation: '早上好' },
+      { word: 'good afternoon', phonetic: '/ɡʊd ˌæftəˈnuːn/', translation: '下午好' },
+      { word: 'good evening', phonetic: '/ɡʊd ˈiːvnɪŋ/', translation: '晚上好' },
+      { word: 'good night', phonetic: '/ɡʊd naɪt/', translation: '晚安' },
+      { word: 'how', phonetic: '/haʊ/', translation: '怎样；如何' },
+      { word: 'are', phonetic: '/ɑː(r)/', translation: '是（be 动词复数）' },
+      { word: 'you', phonetic: '/juː/', translation: '你；你们' },
+      { word: 'I', phonetic: '/aɪ/', translation: '我' },
+      { word: 'am', phonetic: '/æm/', translation: '是（be 动词）' },
+      { word: 'fine', phonetic: '/faɪn/', translation: '好的；健康的' },
+      { word: 'thanks', phonetic: '/θæŋks/', translation: '谢谢' },
+      { word: 'hello', phonetic: '/həˈləʊ/', translation: '你好' },
+      { word: 'teacher', phonetic: '/ˈtiːtʃə(r)/', translation: '教师' },
+      { word: 'book', phonetic: '/bʊk/', translation: '书' },
+      { word: 'pen', phonetic: '/pen/', translation: '钢笔' },
+      { word: 'ruler', phonetic: '/ˈruːlə(r)/', translation: '尺子' },
+      { word: 'eraser', phonetic: '/ɪˈreɪzə(r)/', translation: '橡皮' },
+      { word: 'bag', phonetic: '/bæɡ/', translation: '包；书包' },
+      { word: 'map', phonetic: '/mæp/', translation: '地图' },
+      { word: 'cup', phonetic: '/kʌp/', translation: '杯子' },
+      { word: 'key', phonetic: '/kiː/', translation: '钥匙' },
+      { word: 'orange', phonetic: '/ˈɒrɪndʒ/', translation: '橙子；橙色' },
+      { word: 'egg', phonetic: '/eɡ/', translation: '蛋；鸡蛋' },
+      { word: 'ice', phonetic: '/aɪs/', translation: '冰' },
+      { word: 'jacket', phonetic: '/ˈdʒækɪt/', translation: '夹克衫' },
+      { word: 'T-shirt', phonetic: '/ˈtiːʃɜːt/', translation: 'T恤衫' },
+      { word: 'color', phonetic: '/ˈkʌlə(r)/', translation: '颜色' },
+      { word: 'red', phonetic: '/red/', translation: '红色' },
+      { word: 'blue', phonetic: '/bluː/', translation: '蓝色' },
+      { word: 'yellow', phonetic: '/ˈjeləʊ/', translation: '黄色' },
+      { word: 'green', phonetic: '/ɡriːn/', translation: '绿色' },
+      { word: 'white', phonetic: '/waɪt/', translation: '白色' },
+      { word: 'black', phonetic: '/blæk/', translation: '黑色' },
+      { word: 'brown', phonetic: '/braʊn/', translation: '棕色' },
+      { word: 'friend', phonetic: '/frend/', translation: '朋友' },
+      { word: 'name', phonetic: '/neɪm/', translation: '名字' },
+      { word: 'school', phonetic: '/skuːl/', translation: '学校' },
+      { word: 'class', phonetic: '/klɑːs/', translation: '班级；课' },
+      { word: 'number', phonetic: '/ˈnʌmbə(r)/', translation: '数字；号码' },
+      { word: 'phone', phonetic: '/fəʊn/', translation: '电话' },
+    ];
+
+    const unit2Words = [
+      { word: 'mother', phonetic: '/ˈmʌðə(r)/', translation: '母亲；妈妈' },
+      { word: 'father', phonetic: '/ˈfɑːðə(r)/', translation: '父亲；爸爸' },
+      { word: 'brother', phonetic: '/ˈbrʌðə(r)/', translation: '兄；弟' },
+      { word: 'sister', phonetic: '/ˈsɪstə(r)/', translation: '姐；妹' },
+      { word: 'grandmother', phonetic: '/ˈɡrænmʌðə(r)/', translation: '祖母；外祖母' },
+      { word: 'grandfather', phonetic: '/ˈɡrænfɑːðə(r)/', translation: '祖父；外祖父' },
+      { word: 'parent', phonetic: '/ˈpeərənt/', translation: '父（母）亲' },
+      { word: 'family', phonetic: '/ˈfæməli/', translation: '家庭' },
+      { word: 'this', phonetic: '/ðɪs/', translation: '这；这个' },
+      { word: 'that', phonetic: '/ðæt/', translation: '那；那个' },
+      { word: 'she', phonetic: '/ʃiː/', translation: '她' },
+      { word: 'he', phonetic: '/hiː/', translation: '他' },
+      { word: 'who', phonetic: '/huː/', translation: '谁' },
+      { word: 'is', phonetic: '/ɪz/', translation: '是' },
+      { word: 'it', phonetic: '/ɪt/', translation: '它' },
+      { word: 'photo', phonetic: '/ˈfəʊtəʊ/', translation: '照片' },
+      { word: 'here', phonetic: '/hɪə(r)/', translation: '这里；在这里' },
+      { word: 'they', phonetic: '/ðeɪ/', translation: '他们；她们；它们' },
+      { word: 'have', phonetic: '/hæv/', translation: '有' },
+      { word: 'two', phonetic: '/tuː/', translation: '二' },
+      { word: 'three', phonetic: '/θriː/', translation: '三' },
+      { word: 'four', phonetic: '/fɔː(r)/', translation: '四' },
+      { word: 'five', phonetic: '/faɪv/', translation: '五' },
+      { word: 'six', phonetic: '/sɪks/', translation: '六' },
+      { word: 'seven', phonetic: '/ˈsevn/', translation: '七' },
+      { word: 'eight', phonetic: '/eɪt/', translation: '八' },
+      { word: 'nine', phonetic: '/naɪn/', translation: '九' },
+      { word: 'ten', phonetic: '/ten/', translation: '十' },
+    ];
+
+    const allSet1Words = [...unit1Words, ...unit2Words];
+    for (let i = 0; i < allSet1Words.length; i++) {
+      await addDoc('words', {
+        setId: ws1Id,
+        word: allSet1Words[i].word,
+        phonetic: allSet1Words[i].phonetic,
+        translation: allSet1Words[i].translation,
+        index: i,
+        createdAt: now
+      });
+    }
+
+    // ── 2. 词库 2：中考高频词 ────────────────────────────────────
+    const ws2Id = await addDoc('wordSets', {
+      name: '中考英语高频词',
+      description: '中考英语常考高频词汇精选',
+      wordCount: 0,
+      createdAt: now,
+      updateTime: now
+    });
+
+    const zkWords = [
+      { word: 'abandon', phonetic: '/əˈbændən/', translation: '放弃；遗弃' },
+      { word: 'ability', phonetic: '/əˈbɪləti/', translation: '能力' },
+      { word: 'able', phonetic: '/ˈeɪbl/', translation: '能够的；有能力的' },
+      { word: 'about', phonetic: '/əˈbaʊt/', translation: '关于；大约' },
+      { word: 'above', phonetic: '/əˈbʌv/', translation: '在…上面' },
+      { word: 'abroad', phonetic: '/əˈbrɔːd/', translation: '到（在）国外' },
+      { word: 'accept', phonetic: '/əkˈsept/', translation: '接受' },
+      { word: 'accident', phonetic: '/ˈæksɪdənt/', translation: '事故；意外' },
+      { word: 'according', phonetic: '/əˈkɔːdɪŋ/', translation: '根据；按照' },
+      { word: 'achieve', phonetic: '/əˈtʃiːv/', translation: '实现；达到' },
+      { word: 'across', phonetic: '/əˈkrɒs/', translation: '穿过；横过' },
+      { word: 'act', phonetic: '/ækt/', translation: '行动；表演' },
+      { word: 'action', phonetic: '/ˈækʃn/', translation: '行动' },
+      { word: 'active', phonetic: '/ˈæktɪv/', translation: '积极的；活跃的' },
+      { word: 'activity', phonetic: '/ækˈtɪvəti/', translation: '活动' },
+      { word: 'address', phonetic: '/əˈdres/', translation: '地址' },
+      { word: 'advantage', phonetic: '/ədˈvɑːntɪdʒ/', translation: '优势；好处' },
+      { word: 'advice', phonetic: '/ədˈvaɪs/', translation: '建议；劝告' },
+      { word: 'afford', phonetic: '/əˈfɔːd/', translation: '负担得起' },
+      { word: 'afraid', phonetic: '/əˈfreɪd/', translation: '害怕的' },
+      { word: 'agree', phonetic: '/əˈɡriː/', translation: '同意' },
+      { word: 'allow', phonetic: '/əˈlaʊ/', translation: '允许' },
+      { word: 'almost', phonetic: '/ˈɔːlməʊst/', translation: '几乎；差不多' },
+      { word: 'alone', phonetic: '/əˈləʊn/', translation: '单独的' },
+      { word: 'already', phonetic: '/ɔːlˈredi/', translation: '已经' },
+      { word: 'also', phonetic: '/ˈɔːlsəʊ/', translation: '也；而且' },
+      { word: 'although', phonetic: '/ɔːlˈðəʊ/', translation: '虽然；尽管' },
+      { word: 'always', phonetic: '/ˈɔːlweɪz/', translation: '总是；永远' },
+      { word: 'among', phonetic: '/əˈmʌŋ/', translation: '在…之中' },
+      { word: 'enough', phonetic: '/ɪˈnʌf/', translation: '足够的' },
+      { word: 'environment', phonetic: '/ɪnˈvaɪərənmənt/', translation: '环境' },
+      { word: 'especially', phonetic: '/ɪˈspeʃəli/', translation: '特别；尤其' },
+      { word: 'ever', phonetic: '/ˈevə(r)/', translation: '曾经；在任何时候' },
+      { word: 'every', phonetic: '/ˈevri/', translation: '每个；每一' },
+      { word: 'everyone', phonetic: '/ˈevriwʌn/', translation: '每个人' },
+      { word: 'everything', phonetic: '/ˈevriθɪŋ/', translation: '每件事' },
+      { word: 'exactly', phonetic: '/ɪɡˈzæktli/', translation: '精确地；恰好' },
+      { word: 'example', phonetic: '/ɪɡˈzɑːmpl/', translation: '例子；榜样' },
+      { word: 'expect', phonetic: '/ɪkˈspekt/', translation: '期望；预料' },
+      { word: 'experience', phonetic: '/ɪkˈspɪəriəns/', translation: '经验；经历' },
+      { word: 'important', phonetic: '/ɪmˈpɔːtnt/', translation: '重要的' },
+      { word: 'improve', phonetic: '/ɪmˈpruːv/', translation: '改进；提高' },
+      { word: 'include', phonetic: '/ɪnˈkluːd/', translation: '包含；包括' },
+      { word: 'increase', phonetic: '/ɪnˈkriːs/', translation: '增加；增长' },
+      { word: 'indeed', phonetic: '/ɪnˈdiːd/', translation: '确实；实际上' },
+      { word: 'influence', phonetic: '/ˈɪnfluəns/', translation: '影响' },
+      { word: 'information', phonetic: '/ˌɪnfəˈmeɪʃn/', translation: '信息' },
+      { word: 'instead', phonetic: '/ɪnˈsted/', translation: '代替；反而' },
+      { word: 'interest', phonetic: '/ˈɪntrəst/', translation: '兴趣；关注' },
+      { word: 'knowledge', phonetic: '/ˈnɒlɪdʒ/', translation: '知识' },
+      { word: 'language', phonetic: '/ˈlæŋɡwɪdʒ/', translation: '语言' },
+      { word: 'later', phonetic: '/ˈleɪtə(r)/', translation: '后来；较晚' },
+      { word: 'least', phonetic: '/liːst/', translation: '最少；最小' },
+      { word: 'leave', phonetic: '/liːv/', translation: '离开；留下' },
+      { word: 'lend', phonetic: '/lend/', translation: '借给' },
+      { word: 'less', phonetic: '/les/', translation: '较少的' },
+      { word: 'let', phonetic: '/let/', translation: '让；允许' },
+      { word: 'level', phonetic: '/ˈlevl/', translation: '水平；级别' },
+      { word: 'lie', phonetic: '/laɪ/', translation: '躺；位于；说谎' },
+      { word: 'life', phonetic: '/laɪf/', translation: '生活；生命' },
+      { word: 'lift', phonetic: '/lɪft/', translation: '举起；抬起' },
+      { word: 'light', phonetic: '/laɪt/', translation: '光；灯；轻的' },
+      { word: 'likely', phonetic: '/ˈlaɪkli/', translation: '可能的' },
+      { word: 'line', phonetic: '/laɪn/', translation: '线；排；行' },
+      { word: 'list', phonetic: '/lɪst/', translation: '列表；清单' },
+      { word: 'listen', phonetic: '/ˈlɪsn/', translation: '听' },
+      { word: 'little', phonetic: '/ˈlɪtl/', translation: '小的；少的' },
+      { word: 'live', phonetic: '/lɪv/', translation: '生活；居住' },
+      { word: 'local', phonetic: '/ˈləʊkl/', translation: '当地的；本地的' },
+      { word: 'look', phonetic: '/lʊk/', translation: '看；看起来' },
+      { word: 'lose', phonetic: '/luːz/', translation: '失去；丢失' },
+      { word: 'love', phonetic: '/lʌv/', translation: '爱；热爱' },
+      { word: 'low', phonetic: '/ləʊ/', translation: '低的；矮的' },
+      { word: 'main', phonetic: '/meɪn/', translation: '主要的' },
+      { word: 'make', phonetic: '/meɪk/', translation: '使；制造' },
+      { word: 'manage', phonetic: '/ˈmænɪdʒ/', translation: '管理；设法' },
+      { word: 'many', phonetic: '/ˈmeni/', translation: '许多；大量' },
+      { word: 'mark', phonetic: '/mɑːk/', translation: '标记；分数' },
+      { word: 'market', phonetic: '/ˈmɑːkɪt/', translation: '市场' },
+      { word: 'material', phonetic: '/məˈtɪəriəl/', translation: '材料；物质' },
+      { word: 'matter', phonetic: '/ˈmætə(r)/', translation: '事情；物质；重要' },
+      { word: 'maybe', phonetic: '/ˈmeɪbi/', translation: '也许；大概' },
+      { word: 'mean', phonetic: '/miːn/', translation: '意思是；意味着' },
+      { word: 'measure', phonetic: '/ˈmeʒə(r)/', translation: '测量；衡量' },
+      { word: 'meet', phonetic: '/miːt/', translation: '遇见；满足' },
+      { word: 'member', phonetic: '/ˈmembə(r)/', translation: '成员' },
+      { word: 'memory', phonetic: '/ˈmeməri/', translation: '记忆；回忆' },
+      { word: 'mention', phonetic: '/ˈmenʃn/', translation: '提到；说起' },
+      { word: 'method', phonetic: '/ˈmeθəd/', translation: '方法' },
+      { word: 'might', phonetic: '/maɪt/', translation: '可能；也许' },
+      { word: 'mind', phonetic: '/maɪnd/', translation: '头脑；介意' },
+      { word: 'minute', phonetic: '/ˈmɪnɪt/', translation: '分钟；一会儿' },
+      { word: 'miss', phonetic: '/mɪs/', translation: '想念；错过' },
+      { word: 'model', phonetic: '/ˈmɒdl/', translation: '模型；模范' },
+      { word: 'modern', phonetic: '/ˈmɒdn/', translation: '现代的' },
+      { word: 'moment', phonetic: '/ˈməʊmənt/', translation: '时刻；瞬间' },
+      { word: 'money', phonetic: '/ˈmʌni/', translation: '钱；货币' },
+      { word: 'month', phonetic: '/mʌnθ/', translation: '月；月份' },
+      { word: 'more', phonetic: '/mɔː(r)/', translation: '更多的；更多' },
+      { word: 'morning', phonetic: '/ˈmɔːnɪŋ/', translation: '早晨；上午' },
+      { word: 'most', phonetic: '/məʊst/', translation: '最多；大多数' },
+      { word: 'mother', phonetic: '/ˈmʌðə(r)/', translation: '母亲' },
+      { word: 'move', phonetic: '/muːv/', translation: '移动；搬家' },
+      { word: 'much', phonetic: '/mʌtʃ/', translation: '许多；非常' },
+      { word: 'must', phonetic: '/mʌst/', translation: '必须；一定' },
+      { word: 'nation', phonetic: '/ˈneɪʃn/', translation: '国家；民族' },
+      { word: 'national', phonetic: '/ˈnæʃnəl/', translation: '国家的；民族的' },
+      { word: 'nature', phonetic: '/ˈneɪtʃə(r)/', translation: '自然；性质' },
+      { word: 'necessary', phonetic: '/ˈnesəsəri/', translation: '必要的；必需的' },
+      { word: 'need', phonetic: '/niːd/', translation: '需要；必要' },
+      { word: 'never', phonetic: '/ˈnevə(r)/', translation: '从不；永不' },
+    ];
+
+    for (let i = 0; i < zkWords.length; i++) {
+      await addDoc('words', {
+        setId: ws2Id,
+        word: zkWords[i].word,
+        phonetic: zkWords[i].phonetic,
+        translation: zkWords[i].translation,
+        index: i,
+        createdAt: now
+      });
+    }
+
+    // ── 3. 班级 ──────────────────────────────────────────────────
+    const classId1 = await addDoc('classes', {
+      name: '七年级一班',
+      description: '七年级一班英语教学班',
+      grade: '七年级',
+      status: 'active',
+      createTime: now
+    });
+
+    const classId2 = await addDoc('classes', {
+      name: '七年级二班',
+      description: '七年级二班英语教学班',
+      grade: '七年级',
+      status: 'active',
+      createTime: now
+    });
+
+    // ── 4. 学生 ──────────────────────────────────────────────────
+    const studentsData = [
+      { name: '张小明', phone: '13812340001', classId: classId1 },
+      { name: '李婷婷', phone: '13812340002', classId: classId1 },
+      { name: '王浩然', phone: '13812340003', classId: classId1 },
+      { name: '刘思琪', phone: '13812340004', classId: classId1 },
+      { name: '陈子轩', phone: '13812340005', classId: classId1 },
+      { name: '赵雨萱', phone: '13812340006', classId: classId2 },
+      { name: '孙浩宇', phone: '13812340007', classId: classId2 },
+      { name: '周雅静', phone: '13812340008', classId: classId2 },
+      { name: '吴俊杰', phone: '13812340009', classId: classId2 },
+      { name: '郑诗涵', phone: '13812340010', classId: classId2 },
+    ];
+
+    const studentIds = [];
+    for (const s of studentsData) {
+      const sid = await addDoc('students', {
+        name: s.name,
+        phone: s.phone,
+        classId: s.classId,
+        joinSource: 'manual',
+        status: 'active',
+        createTime: now
+      });
+      studentIds.push(sid);
+    }
+
+    res.json({
+      code: 0,
+      source: 'wechat_db',
+      message: '真实数据已全部写入微信云数据库',
+      data: {
+        wordSets: [
+          { _id: ws1Id, name: '人教版七年级上册', wordCount: allSet1Words.length },
+          { _id: ws2Id, name: '中考英语高频词', wordCount: zkWords.length },
+        ],
+        classes: [
+          { _id: classId1, name: '七年级一班' },
+          { _id: classId2, name: '七年级二班' },
+        ],
+        students: studentsData.map((s, i) => ({ _id: studentIds[i], name: s.name }))
+      }
+    });
+  } catch (err) {
+    console.error('❌ /api/seed 错误:', err.message);
     res.status(500).json({ code: -1, source: 'error', error: err.message });
   }
 });
@@ -574,8 +1088,8 @@ app.delete('/api/notes/:id', async (req, res) => {
   }
 });
 
-// 生产环境：必须在所有 /api 路由之后注册，否则会拦截 API 请求
-if (IS_PROD) {
+// 生产环境：必须在所有 /api 路由之后注册，否则会拦截 API 请求（Electron 内嵌时由壳加载 dist，不挂静态）
+if (IS_PROD && !TEACHER_ELECTRON) {
   app.use(express.static(FRONTEND_DIST));
   app.get('*', (req, res) => {
     res.sendFile(path.join(FRONTEND_DIST, 'index.html'));
@@ -586,17 +1100,19 @@ if (IS_PROD) {
 // 启动
 // ============================================================
 
-accessTokenCache.token = null;
-accessTokenCache.expiresAt = 0;
+function startTeacherServer() {
+  accessTokenCache.token = null;
+  accessTokenCache.expiresAt = 0;
 
-app.listen(PORT, async () => {
-  try {
-    await getAccessToken();
-    console.log('[Server] Token 获取成功（长期有效）');
-  } catch (err) {
-    console.log('[Server] Token 获取失败:', err.message);
-  }
-  console.log(`
+  return new Promise((resolve, reject) => {
+    const server = app.listen(PORT, async () => {
+      try {
+        await getAccessToken();
+        console.log('[Server] Token 获取成功（长期有效）');
+      } catch (err) {
+        console.log('[Server] Token 获取失败:', err.message);
+      }
+      console.log(`
 ╔═══════════════════════════════════════════════════════╗
 ║   Teacher Web Server  已启动                          ║
 ║   地址: http://localhost:${PORT}                          ║
@@ -616,4 +1132,17 @@ app.listen(PORT, async () => {
 ║   • GET  /api/students    - 学生列表（直连DB）     ║
 ╚═══════════════════════════════════════════════════════╝
   `);
-});
+      resolve(server);
+    });
+    server.on('error', reject);
+  });
+}
+
+module.exports = { app, startTeacherServer, PORT };
+
+if (require.main === module) {
+  startTeacherServer().catch((err) => {
+    console.error('[Server] 启动失败:', err);
+    process.exit(1);
+  });
+}

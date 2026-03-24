@@ -6,9 +6,17 @@
         ← 返回
       </button>
       <div class="header-actions">
-        <button v-if="!editing" class="btn-edit" @click="startEdit">
-          编辑
-        </button>
+        <!-- 阅读模式：字号调节 -->
+        <template v-if="!editing">
+          <div class="font-size-ctrl">
+            <button class="font-btn" @click="fontSize = Math.max(14, fontSize - 1)" title="缩小字号">A−</button>
+            <span class="font-num">{{ fontSize }}</span>
+            <button class="font-btn" @click="fontSize = Math.min(28, fontSize + 1)" title="放大字号">A+</button>
+          </div>
+          <button class="btn-edit" @click="startEdit">
+            编辑
+          </button>
+        </template>
         <template v-else>
           <button class="btn-cancel" @click="cancelEdit">取消</button>
           <button class="btn-save" @click="saveNote" :disabled="saving">
@@ -72,7 +80,7 @@
         </div>
 
         <!-- 阅读模式 -->
-        <div v-else class="content-view">
+        <div v-else class="content-view" :style="{ fontSize: fontSize + 'px' }">
           <div class="rendered-content" v-html="renderedContent"></div>
         </div>
       </div>
@@ -138,6 +146,7 @@ const saving = ref(false)
 const editing = ref(false)
 const note = ref(null)
 const editorRef = ref(null)
+const fontSize = ref(18)
 
 // 编辑表单
 const editForm = ref({
@@ -352,7 +361,8 @@ onMounted(() => {
 
 <style scoped>
 .note-detail-page {
-  max-width: 900px;
+  width: 100%;
+  max-width: 1100px;
 }
 
 /* 头部 */
@@ -416,6 +426,43 @@ onMounted(() => {
 .btn-save:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* 字号调节控件 */
+.font-size-ctrl {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: 8px;
+}
+
+.font-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  padding: 0;
+}
+
+.font-btn:hover {
+  border-color: var(--theme-accent);
+  color: var(--theme-accent);
+}
+
+.font-num {
+  font-size: 12px;
+  color: #999;
+  min-width: 24px;
+  text-align: center;
 }
 
 /* 笔记容器 */
@@ -515,8 +562,8 @@ onMounted(() => {
   min-height: 500px;
   padding: 20px;
   border: none;
-  font-size: 15px;
-  line-height: 1.8;
+  font-size: 17px;
+  line-height: 1.85;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   resize: vertical;
 }
@@ -525,27 +572,27 @@ onMounted(() => {
   outline: none;
 }
 
-/* 渲染内容 */
+/* 渲染内容（正文字号略大，便于阅读；音标常用 sup/small，单独放大） */
 .content-view {
-  font-size: 16px;
-  line-height: 1.9;
+  font-size: 18px;
+  line-height: 1.85;
   color: #333;
 }
 
 .content-view :deep(h1) {
-  font-size: 24px;
+  font-size: 28px;
   margin: 24px 0 12px;
   color: #222;
 }
 
 .content-view :deep(h2) {
-  font-size: 20px;
+  font-size: 23px;
   margin: 20px 0 10px;
   color: #222;
 }
 
 .content-view :deep(h3) {
-  font-size: 18px;
+  font-size: 20px;
   margin: 16px 0 8px;
   color: #222;
 }
@@ -564,7 +611,18 @@ onMounted(() => {
   padding: 2px 6px;
   border-radius: 4px;
   font-family: monospace;
-  font-size: 14px;
+  font-size: 15px;
+}
+
+/* 音标、上标：浏览器默认会缩得很小，这里按正文比例放大 */
+.content-view :deep(sup),
+.content-view :deep(sub) {
+  font-size: 0.9em;
+  line-height: 1;
+}
+
+.content-view :deep(small) {
+  font-size: 0.95em;
 }
 
 .content-view :deep(pre) {

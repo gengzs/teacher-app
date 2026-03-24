@@ -24,28 +24,28 @@
     <!-- 学生列表 -->
     <view class="student-list" v-if="filteredStudents.length > 0">
       <view
-        class="student-item"
+        class="student-card"
         :class="{ left: item.status === 'inactive' }"
         v-for="item in filteredStudents"
         :key="item._id"
+        @click="goToStudentDetail(item)"
       >
-        <view class="student-avatar" :class="{ left: item.status === 'inactive' }">
-          {{item.name[0]}}
+        <view class="card-left">
+          <view class="student-avatar" :class="{ left: item.status === 'inactive' }">
+            {{item.name[0]}}
+          </view>
+          <view class="student-info">
+            <text class="student-name">{{item.name}}</text>
+            <text class="student-class">{{item.className || '未分班'}}</text>
+          </view>
         </view>
-        <view class="student-info" @click="goToStudentDetail(item._id, item.name)">
-          <text class="student-name">{{item.name}}</text>
-          <text class="student-class">{{item.className}}</text>
-        </view>
-        <view class="student-status">
-          <text v-if="item.status === 'inactive'" class="status-tag left">已离班</text>
-          <text v-if="item.status === 'active' && item.joinSource === 'invite'" class="status-tag invite">邀请加入</text>
-          <text v-if="item.status === 'active' && item.joinSource === 'manual'" class="status-tag manual">手动添加</text>
-        </view>
-        <view class="student-action" v-if="item.status === 'active'">
-          <view
-            class="action-btn remove"
-            @click="removeStudent(item._id, item.name, item.classId)"
-          >移除</view>
+        <view class="card-right">
+          <view class="status-tags">
+            <text v-if="item.status === 'inactive'" class="status-tag left">已离班</text>
+            <text v-if="item.status === 'active' && item.joinSource === 'invite'" class="status-tag invite">邀请加入</text>
+            <text v-if="item.status === 'active' && item.joinSource === 'manual'" class="status-tag manual">手动添加</text>
+          </view>
+          <text class="card-arrow">›</text>
         </view>
       </view>
     </view>
@@ -138,9 +138,9 @@ export default {
       this.loadStudents();
     },
 
-    goToStudentDetail(id, name) {
+    goToStudentDetail(student) {
       uni.navigateTo({
-        url: `/pages/teacher/records/records?id=${id}&name=${encodeURIComponent(name)}`,
+        url: `/pages/teacher/students/detail/detail?id=${student._id}&name=${encodeURIComponent(student.name)}&classId=${student.classId || ''}&className=${encodeURIComponent(student.className || '')}`,
       });
     },
 
@@ -239,30 +239,48 @@ export default {
 .student-list {
   background: #fff;
   border-radius: 16rpx;
+  overflow: hidden;
 }
 
-.student-item {
+.student-card {
   display: flex;
   align-items: center;
-  padding: 24rpx;
+  justify-content: space-between;
+  padding: 28rpx 24rpx;
   border-bottom: 1rpx solid #f5f5f5;
+  transition: background 0.2s;
 }
 
-.student-item:last-child {
+.student-card:active {
+  background: #f8f8f8;
+}
+
+.student-card:last-child {
   border-bottom: none;
 }
 
-.student-item.left {
+.student-card.left {
   opacity: 0.6;
 }
 
+.card-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.card-right {
+  display: flex;
+  align-items: center;
+}
+
 .student-avatar {
-  width: 72rpx;
-  height: 72rpx;
+  width: 80rpx;
+  height: 80rpx;
   border-radius: 50%;
   background: var(--theme-gradient);
   color: #fff;
-  font-size: 28rpx;
+  font-size: 32rpx;
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -282,8 +300,8 @@ export default {
 
 .student-name {
   display: block;
-  font-size: 28rpx;
-  font-weight: 500;
+  font-size: 30rpx;
+  font-weight: 600;
   color: #333;
   margin-bottom: 6rpx;
 }
@@ -293,7 +311,10 @@ export default {
   color: #999;
 }
 
-.student-status {
+.status-tags {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
   margin-right: 16rpx;
 }
 
@@ -301,21 +322,16 @@ export default {
   font-size: 22rpx;
   padding: 6rpx 12rpx;
   border-radius: 8rpx;
+  margin-bottom: 4rpx;
 }
 
-.status-tag.left {
-  background: #f5f5f5;
-  color: #999;
+.status-tag:last-child {
+  margin-bottom: 0;
 }
 
-.status-tag.invite {
-  background: var(--theme-light);
-  color: var(--theme-accent);
-}
-
-.status-tag.manual {
-  background: #E8F4FF;
-  color: #1890FF;
+.card-arrow {
+  font-size: 40rpx;
+  color: #ccc;
 }
 
 .student-action {

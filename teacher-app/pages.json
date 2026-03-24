@@ -116,6 +116,12 @@
       }
     },
     {
+      "path": "pages/teacher/students/detail/detail",
+      "style": {
+        "navigationBarTitleText": "学生详情"
+      }
+    },
+    {
       "path": "pages/teacher/students/requests/requests",
       "style": {
         "navigationBarTitleText": "入班申请"

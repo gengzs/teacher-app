@@ -4,8 +4,16 @@
 
 import axios from 'axios'
 
-// 开发：Vite 把 /api 代理到后端；生产：同域 Express 路由为 /api/*
-const API_BASE = '/api'
+// 开发：Vite 代理 /api；网页生产：同域 /api；桌面端：preload 注入 window.__TEACHER_API_ORIGIN__（如 http://127.0.0.1:3010）
+function resolveApiBase() {
+  const origin =
+    typeof window !== 'undefined' && window.__TEACHER_API_ORIGIN__
+      ? String(window.__TEACHER_API_ORIGIN__).replace(/\/$/, '')
+      : ''
+  return origin ? `${origin}/api` : '/api'
+}
+
+const API_BASE = resolveApiBase()
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -128,4 +136,9 @@ export function searchNotes(q) {
   return api.get('/notes/search', { params: { q } })
 }
 
-export default api
+/**
+ * 获取学生详情（含统计数据） GET /api/students/:id/stats
+ */
+export function getStudentStats(studentId) {
+  return api.get(`/students/${studentId}/stats`)
+}

@@ -77,6 +77,9 @@ const pageTitleMap = {
   '/homework/create': '布置作业',
   '/class': '班级管理',
   '/students': '学生管理',
+  '/recite': '选词库学习',
+  '/recite/learn': '分组学习',
+  '/recite/test': '单词检测',
   '/notes': '笔记库',
   '/notes/new': '新建笔记',
   '/profile': '个人中心'
@@ -87,6 +90,9 @@ const currentPageTitle = computed(() => {
   // 笔记详情页显示笔记标题
   if (path.startsWith('/notes/') && path !== '/notes/new') {
     return '笔记详情'
+  }
+  if (path.startsWith('/student/')) {
+    return '学生详情'
   }
   return pageTitleMap[path] || '教师助手'
 })
@@ -298,6 +304,8 @@ onMounted(() => {
   flex: 1;
   overflow-y: auto;
   padding: 24px 32px;
+  display: flex;
+  justify-content: center;
 }
 
 /* 响应式 */

@@ -151,11 +151,26 @@ export default {
       importLoading: false,
       searchKey: '',
       listLoading: false,
+      // 从学生详情页传入的参数
+      studentMode: '',
+      studentId: '',
+      studentName: '',
     };
   },
 
-  onLoad() {
+  onLoad(options) {
     this.loadWordSets();
+
+    // 接收从学生详情页传来的参数
+    if (options.mode) {
+      this.studentMode = options.mode;
+    }
+    if (options.studentId) {
+      this.studentId = options.studentId;
+    }
+    if (options.studentName) {
+      this.studentName = decodeURIComponent(options.studentName);
+    }
   },
 
   onShow() {
@@ -323,9 +338,20 @@ export default {
       } catch (err) {
         console.warn('teacher_last_word_set', err);
       }
-      uni.navigateTo({
-        url: `/pages/teacher/recite/recite?setId=${setId}&setName=${encodeURIComponent(setName)}`,
-      });
+
+      // 构建跳转URL，传递词库信息和学生信息
+      let url = `/pages/teacher/recite/recite?setId=${setId}&setName=${encodeURIComponent(setName)}`;
+
+      // 如果是从学生详情页进入的，传递学生信息
+      if (this.studentId) {
+        url += `&studentId=${this.studentId}&studentName=${encodeURIComponent(this.studentName)}`;
+      }
+      // 如果是复习模式
+      if (this.studentMode === 'review') {
+        url += '&mode=review';
+      }
+
+      uni.navigateTo({ url });
     },
   },
 };

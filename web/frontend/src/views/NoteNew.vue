@@ -125,7 +125,8 @@ async function createNote() {
 
 <style scoped>
 .note-new-page {
-  max-width: 900px;
+  width: 100%;
+  max-width: 1100px;
 }
 
 /* 头部 */
